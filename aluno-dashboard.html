@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard do Aluno - Letras & Cores</title>
+    <link rel="icon" type="image/png" href="imagens/logo.png">
+    <link rel="stylesheet" type="text/css" href="estilo.css">
+    <style>
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .dashboard-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1em;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: box-shadow 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            color: #999;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .card-content {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .frequency-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .frequency-label {
+            font-weight: 600;
+        }
+
+        .frequency-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .status-presente {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-ausente {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .grade-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .grade-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .grade-table td {
+            border-bottom: 1px solid #ddd;
+            padding: 12px;
+        }
+
+        .grade-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .grade {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .grade-good {
+            color: #28a745;
+        }
+
+        .grade-average {
+            color: #ffc107;
+        }
+
+        .grade-low {
+            color: #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .bimestre-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .bimestre-btn:hover {
+            border-color: #667eea;
+            background: #f9f9f9;
+        }
+
+        .bimestre-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .disciplina-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .disciplina-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .disciplina-nome {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .professor-nome {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .notas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .nota-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .nota-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .nota-valor {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nota-valor.excelente {
+            color: #28a745;
+        }
+
+        .nota-valor.bom {
+            color: #17a2b8;
+        }
+
+        .nota-valor.satisfatorio {
+            color: #ffc107;
+        }
+
+        .nota-valor.insuficiente {
+            color: #dc3545;
+        }
+
+        .media-final {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 2px solid #f0f0f0;
+            margin-top: 15px;
+        }
+
+        .media-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .media-valor {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="topo">
+            <img src="imagens/logo.png" alt="Logo da Escola" class="logo">
+            <h1>Centro Educacional Letras & Cores</h1>
+        </div>
+        <img src="imagens/fundo.jpg" alt="Imagem de Fundo" class="fundo">
+    </header>
+    <hr />
+
+    <main>
+        <div class="dashboard-header">
+            <div>
+                <h1 id="nomeAluno">Seu Dashboard</h1>
+                <p id="serieName">Acompanhe suas atividades, frequência e notas</p>
+            </div>
+            <button class="logout-btn" onclick="logout()">Sair</button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="abrirAba('atividades')">📋 Atividades</button>
+            <button class="tab-btn" onclick="abrirAba('frequencia')">📅 Frequência</button>
+            <button class="tab-btn" onclick="abrirAba('notas')">📊 Notas</button>
+        </div>
+
+        <!-- Aba Atividades -->
+        <div id="atividades" class="tab-content active">
+            <div id="atividadesContainer"></div>
+        </div>
+
+        <!-- Aba Frequência -->
+        <div id="frequencia" class="tab-content">
+            <div id="frequenciaContainer"></div>
+        </div>
+
+        <!-- Aba Notas -->
+        <div id="notas" class="tab-content">
+            <div class="card">
+                <h3>Escolha o Bimestre</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <button class="bimestre-btn active" onclick="carregarNotasPorBimestre(1)">1º Bimestre</button>
+                    <button class="bimestre-btn" onclick="carregarNotasPorBimestre(2)">2º Bimestre</button>
+                    <button class="bimestre-btn" onclick="carregarNotasPorBimestre(3)">3º Bimestre</button>
+                    <button class="bimestre-btn" onclick="carregarNotasPorBimestre(4)">4º Bimestre</button>
+                </div>
+            </div>
+            <div id="notasContainer"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Centro Educacional Letras & Cores. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        function obterToken() {
+            return localStorage.getItem('access_token');
+        }
+
+        function obterDadosUsuario() {
+            return JSON.parse(localStorage.getItem('user_data') || '{}');
+        }
+
+        function estaAutenticado() {
+            return !!obterToken();
+        }
+
+        function logout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('user_data');
+            window.location.href = 'login.html';
+        }
+
+        function fetchComToken(url) {
+            const token = obterToken();
+            if (!token) {
+                logout();
+                return Promise.reject('Token não encontrado');
+            }
+
+            return fetch(url, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!estaAutenticado()) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const userData = obterDadosUsuario();
+            if (userData.nome) {
+                document.getElementById('nomeAluno').textContent = `Bem-vindo(a), ${userData.nome}!`;
+                const serie = userData.serieName || 'Série não definida';
+                document.getElementById('serieName').textContent = `Série: ${serie}`;
+            }
+
+            carregarAtividades();
+            carregarFrequencia();
+            carregarNotas();
+        });
+
+        function abrirAba(abaName) {
+            document.querySelectorAll('.tab-content').forEach(aba => {
+                aba.classList.remove('active');
+            });
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(abaName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function carregarAtividades() {
+            fetchComToken(`${API_URL}/atividades`)
+                .then(response => {
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(atividades => {
+                    let html = '';
+
+                    if (!atividades || atividades.length === 0) {
+                        html = `<div class="empty-state"><p>Nenhuma atividade no momento</p></div>`;
+                    } else {
+                        atividades.forEach(ativ => {
+                            const dataEntrega = ativ.data_entrega ? new Date(ativ.data_entrega).toLocaleDateString('pt-BR') : 'Sem data';
+                            const dataAtrasada = ativ.data_entrega && new Date(ativ.data_entrega) < new Date() ? '🔴 ATRASADA' : '';
+
+                            html += `
+                                <div class="card">
+                                    <div class="card-title">${ativ.titulo} ${dataAtrasada}</div>
+                                    <div class="card-subtitle">Prof. ${ativ.professor}</div>
+                                    <div class="card-content">
+                                        <p>${ativ.descricao || 'Sem descrição'}</p>
+                                        <small>Entrega: ${dataEntrega}</small>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    document.getElementById('atividadesContainer').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('atividadesContainer').innerHTML = '<p style="color: red;">Erro ao carregar atividades</p>';
+                });
+        }
+
+        function carregarFrequencia() {
+            fetchComToken(`${API_URL}/aluno/frequencia`)
+                .then(response => {
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let html = '';
+
+                    if (!data || !data.por_mes || data.por_mes.length === 0) {
+                        html = `<div class="empty-state"><p>Nenhum registro de frequência</p></div>`;
+                    } else {
+                        // Card de resumo geral
+                        const resumo = data.resumo;
+                        const faltas = resumo.faltas_totais;
+                        const presencas = resumo.dias_uteis_totais - faltas;
+                        
+                        html = `
+                            <div class="card">
+                                <div class="card-title">📊 Resumo Geral de Frequência</div>
+                                <div class="card-content" style="display: flex; gap: 30px; margin-top: 15px;">
+                                    <div>
+                                        <strong>Total de Dias Úteis:</strong> ${resumo.dias_uteis_totais}
+                                    </div>
+                                    <div>
+                                        <strong>Presença:</strong> <span style="color: #28a745; font-weight: bold;">${presencas}</span> dias
+                                    </div>
+                                    <div>
+                                        <strong>Faltas:</strong> <span style="color: #dc3545; font-weight: bold;">${faltas}</span> dias
+                                    </div>
+                                    <div>
+                                        <strong>Percentual de Presença:</strong> 
+                                        <span style="color: ${resumo.percentual_geral >= 75 ? '#28a745' : resumo.percentual_geral >= 50 ? '#ffc107' : '#dc3545'}; font-weight: bold; font-size: 1.2em;">
+                                            ${resumo.percentual_geral}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Cards por mês
+                        html += '<div class="card"><div class="card-title">📅 Frequência por Mês</div>';
+                        
+                        data.por_mes.forEach(mes => {
+                            const meses = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                            const mesNum = parseInt(mes.mes.split('-')[1]);
+                            const nomeMes = meses[mesNum];
+                            const ano = mes.mes.split('-')[0];
+                            
+                            const corPercentual = mes.percentual >= 75 ? '#28a745' : mes.percentual >= 50 ? '#ffc107' : '#dc3545';
+                            
+                            html += `
+                                <div class="frequency-item">
+                                    <div style="flex: 1;">
+                                        <span class="frequency-label">${nomeMes}/${ano}</span>
+                                        <small style="display: block; margin-top: 5px; color: #999;">
+                                            ${mes.presencas} presentes | ${mes.faltas} faltas de ${mes.dias_uteis} dias úteis
+                                        </small>
+                                    </div>
+                                    <span style="background: ${corPercentual}; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; min-width: 80px; text-align: center;">
+                                        ${mes.percentual}%
+                                    </span>
+                                </div>
+                            `;
+                        });
+                        
+                        html += '</div>';
+                    }
+
+                    document.getElementById('frequenciaContainer').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('frequenciaContainer').innerHTML = '<p style="color: red;">Erro ao carregar frequência</p>';
+                });
+        }
+
+        function carregarNotasPorBimestre(bimestre) {
+            // Atualizar botões ativos
+            document.querySelectorAll('.bimestre-btn').forEach((btn, idx) => {
+                if (idx + 1 === bimestre) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            fetchComToken(`${API_URL}/aluno/notas`)
+                .then(response => {
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(notas => {
+                    if (!notas || notas.length === 0) {
+                        document.getElementById('notasContainer').innerHTML = '<div class="card empty-state"><p>Nenhuma nota registrada</p></div>';
+                        return;
+                    }
+
+                    // Filtrar notas do bimestre selecionado
+                    const notasBimestre = notas.filter(nota => nota.bimestre === bimestre);
+
+                    if (notasBimestre.length === 0) {
+                        document.getElementById('notasContainer').innerHTML = '<div class="card empty-state"><p>Nenhuma nota registrada para este bimestre</p></div>';
+                        return;
+                    }
+
+                    // Agrupar notas por disciplina (pegar a primeira entrada de cada disciplina)
+                    const disciplinas = {};
+                    notasBimestre.forEach(nota => {
+                        if (!disciplinas[nota.disciplina]) {
+                            disciplinas[nota.disciplina] = nota;
+                        }
+                    });
+
+                    // Construir HTML
+                    let html = '';
+                    for (const [disciplina, nota] of Object.entries(disciplinas)) {
+                        // Determinar classe de cor baseada na média final
+                        const media = nota.mb || 0;
+                        let classeMedia = 'insuficiente';
+                        if (media >= 9) classeMedia = 'excelente';
+                        else if (media >= 7) classeMedia = 'bom';
+                        else if (media >= 5) classeMedia = 'satisfatorio';
+
+                        // Construir grid de notas
+                        let gridNotas = '';
+
+                        // Nota Mensal (se existe)
+                        if (nota.avm !== null && nota.avm !== undefined) {
+                            const classeAVM = nota.avm >= 7 ? 'bom' : (nota.avm >= 5 ? 'satisfatorio' : 'insuficiente');
+                            gridNotas += `
+                                <div class="nota-item">
+                                    <div class="nota-label">📝 Mensal</div>
+                                    <div class="nota-valor ${classeAVM}">${nota.avm.toFixed(1)}</div>
+                                </div>
+                            `;
+                        }
+
+                        // Nota Bimestral (se existe)
+                        if (nota.avb !== null && nota.avb !== undefined) {
+                            const classeAVB = nota.avb >= 7 ? 'bom' : (nota.avb >= 5 ? 'satisfatorio' : 'insuficiente');
+                            gridNotas += `
+                                <div class="nota-item">
+                                    <div class="nota-label">📊 Bimestral</div>
+                                    <div class="nota-valor ${classeAVB}">${nota.avb.toFixed(1)}</div>
+                                </div>
+                            `;
+                        }
+
+                        // Nota de Recuperação (se existe)
+                        if (nota.rec !== null && nota.rec !== undefined) {
+                            const classeREC = nota.rec >= 7 ? 'bom' : (nota.rec >= 5 ? 'satisfatorio' : 'insuficiente');
+                            gridNotas += `
+                                <div class="nota-item">
+                                    <div class="nota-label">🔄 Recuperação</div>
+                                    <div class="nota-valor ${classeREC}">${nota.rec.toFixed(1)}</div>
+                                </div>
+                            `;
+                        }
+
+                        html += `
+                            <div class="disciplina-card">
+                                <div class="disciplina-header">
+                                    <div>
+                                        <div class="disciplina-nome">${disciplina}</div>
+                                        <div class="professor-nome">Prof. ${nota.professor_nome}</div>
+                                    </div>
+                                </div>
+
+                                <div class="notas-grid">
+                                    ${gridNotas}
+                                </div>
+
+                                <div class="media-final">
+                                    <span class="media-label">📈 Média Final:</span>
+                                    <span class="media-valor ${classeMedia}">${media.toFixed(1)}</span>
+                                </div>
+
+                                ${nota.observacao ? `
+                                    <div style="margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px;">
+                                        <strong>📌 Observação:</strong> ${nota.observacao}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+
+                    document.getElementById('notasContainer').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    document.getElementById('notasContainer').innerHTML = '<div class="card"><p style="color: red;">Erro ao carregar notas</p></div>';
+                });
+        }
+
+        // Carregar notas do 1º bimestre por padrão
+        function carregarNotas() {
+            carregarNotasPorBimestre(1);
+        }
+    </script>
+</body>
+</html>

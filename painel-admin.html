@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Sistema Escolar</title>
+    <link rel="stylesheet" href="estilo.css">
+    <style>
+        :root {
+            --cor-primaria: #2c5530;
+            --cor-secundaria: #4a7c59;
+            --cor-acento: #68a072;
+            --cor-sucesso: #48bb78;
+            --cor-aviso: #f6ad55;
+            --cor-erro: #f56565;
+            --cor-fundo: #f8fffe;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-secundaria) 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h1 {
+            color: var(--cor-primaria);
+            font-size: 1.8em;
+        }
+        
+        .user-info {
+            text-align: right;
+        }
+        
+        .user-info p {
+            color: var(--cor-primaria);
+            font-weight: 500;
+        }
+        
+        .btn-logout {
+            background: var(--cor-erro);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .btn-logout:hover {
+            background: #e53e3e;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid var(--cor-acento);
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--cor-primaria);
+        }
+        
+        .stat-label {
+            color: #999;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tabs button {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            color: #999;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs button.active {
+            color: var(--cor-primaria);
+            border-bottom-color: var(--cor-primaria);
+        }
+        
+        .nav-tabs button:hover {
+            color: var(--cor-secundaria);
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .form-section {
+            background: #f8fffe;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-section h3 {
+            color: var(--cor-primaria);
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--cor-primaria);
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--cor-primaria);
+            box-shadow: 0 0 5px rgba(44, 85, 48, 0.2);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--cor-primaria);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1a3a1c;
+        }
+        
+        .btn-secondary {
+            background: var(--cor-secundaria);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #2c5530;
+        }
+        
+        .btn-danger {
+            background: var(--cor-erro);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        
+        .multi-select {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            height: 150px;
+            overflow-y: auto;
+        }
+        
+        .multi-select label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        .multi-select input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        table thead {
+            background: var(--cor-fundo);
+            border-bottom: 2px solid #ddd;
+        }
+        
+        table th {
+            padding: 12px;
+            text-align: left;
+            color: var(--cor-primaria);
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        table tr:hover {
+            background: #f0f8f3;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid var(--cor-sucesso);
+        }
+        
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid var(--cor-erro);
+        }
+        
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border-left: 4px solid #4299e1;
+        }
+        
+        .documento-template {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 40px;
+            margin-top: 20px;
+            min-height: 400px;
+            page-break-inside: avoid;
+        }
+        
+        .documento-template h2 {
+            text-align: center;
+            color: var(--cor-primaria);
+            margin-bottom: 20px;
+        }
+        
+        .btn-print {
+            background: #4299e1;
+            color: white;
+            margin-top: 15px;
+        }
+        
+        .btn-print:hover {
+            background: #3182ce;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .nav-tabs,
+            .form-section:first-child,
+            .btn,
+            header {
+                display: none;
+            }
+            
+            .main-content {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .form-row,
+            .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 Painel Administrativo</h1>
+            <div class="user-info">
+                <p>Bem-vindo, <strong id="nome-admin">Administrador</strong></p>
+                <button class="btn-logout" onclick="logout()">Sair</button>
+            </div>
+        </header>
+        
+        <!-- SEÇÃO DE BUSCA -->
+        <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h2 style="color: var(--cor-primaria); margin-bottom: 15px;">🔍 Buscar Aluno ou Professor</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="buscaInput" placeholder="Digite o nome ou matrícula..." style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 1em;">
+                <button onclick="realizarBusca()" class="btn btn-primary" style="padding: 12px 30px;">Buscar</button>
+                <button onclick="limparBusca()" class="btn btn-secondary" style="padding: 12px 30px;">Limpar</button>
+            </div>
+            <div id="resultadosBusca" style="display: none;"></div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-prof">0</div>
+                <div class="stat-label">Professores</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-alunos">0</div>
+                <div class="stat-label">Alunos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-series">0</div>
+                <div class="stat-label">Turmas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-disciplinas">0</div>
+                <div class="stat-label">Disciplinas</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="nav-tabs">
+                <button class="active" onclick="mostrarAba('professores')">👨‍🏫 Professores</button>
+                <button onclick="mostrarAba('alunos')">👥 Alunos</button>
+                <button onclick="mostrarAba('series')">📚 Turmas</button>
+                <button onclick="mostrarAba('disciplinas')">📖 Disciplinas</button>
+                <button onclick="mostrarAba('secretaria')">📄 Secretaria</button>
+                <button onclick="mostrarAba('arquivo-morto')">🗂️ Arquivo Morto</button>
+            </div>
+            
+            <!-- ABA: PROFESSORES -->
+            <div id="professores" class="tab-pane active">
+                <div class="form-section">
+                    <h3>Cadastrar Novo Professor</h3>
+                    <form id="form-professor" onsubmit="cadastrarProfessor(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome Completo *</label>
+                                <input type="text" id="prof-nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <input type="email" id="prof-email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>CPF</label>
+                                <input type="text" id="prof-cpf" placeholder="000.000.000-00" onkeyup="aplicarMascaraCPF(event)" required maxlength="14">
+                            </div>
+                            <div class="form-group">
+                                <label>Data de Nascimento</label>
+                                <input type="date" id="prof-nascimento">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Celular</label>
+                                <input type="tel" id="prof-celular" placeholder="(11) 9XXXX-XXXX">
+                            </div>
+                            <div class="form-group">
+                                <label>Endereço</label>
+                                <input type="text" id="prof-endereco">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Senha *</label>
+                                <input type="password" id="prof-senha" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Foto (URL)</label>
+                                <input type="url" id="prof-foto" placeholder="https://...">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Disciplinas *</label>
+                            <div class="multi-select" id="select-disciplinas">
+                                <p style="color: #999;">Carregando disciplinas...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Turmas *</label>
+                            <div class="multi-select" id="select-series">
+                                <p style="color: #999;">Carregando turmas...</p>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Cadastrar Professor</button>
+                    </form>
+                </div>
+                
+                <h3>Professores Cadastrados</h3>
+                <div id="lista-professores">
+                    <p style="color: #999;">Carregando...</p>
+                </div>
+            </div>
+            
+            <!-- ABA: ALUNOS -->
+            <div id="alunos" class="tab-pane">
+                <div class="form-section">
+                    <h3>Cadastrar Novo Aluno</h3>
+                    <form id="form-aluno" onsubmit="cadastrarAluno(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome Completo *</label>
+                                <input type="text" id="aluno-nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="aluno-email">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>CPF do Aluno *</label>
+                                <input type="text" id="aluno-cpf" placeholder="000.000.000-00" onkeyup="aplicarMascaraCPF(event)" required maxlength="14">
+                            </div>
+                            <div class="form-group">
+                                <label>CPF do Responsável</label>
+                                <input type="text" id="aluno-cpf-responsavel" placeholder="000.000.000-00" onkeyup="aplicarMascaraCPF(event)" maxlength="14">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Endereço</label>
+                                <input type="text" id="aluno-endereco">
+                            </div>
+                            <div class="form-group">
+                                <label>Senha *</label>
+                                <input type="password" id="aluno-senha" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Turma *</label>
+                                <select id="aluno-serie" required>
+                                    <option value="">Selecione uma turma</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Data de Nascimento</label>
+                                <input type="date" id="aluno-nascimento">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Responsável</label>
+                                <input type="text" id="aluno-responsavel">
+                            </div>
+                            <div class="form-group">
+                                <label>Telefone</label>
+                                <input type="tel" id="aluno-telefone">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group" style="flex: 1;">
+                                <label>Foto do Aluno</label>
+                                <input type="file" id="aluno-foto" accept="image/*" style="width: 100%;">
+                                <small style="color: #666;">Formatos: JPG, PNG, GIF (máx 5MB)</small>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Cadastrar Aluno</button>
+                    </form>
+                </div>
+                
+                <h3>Alunos Cadastrados</h3>
+                <div id="lista-alunos">
+                    <p style="color: #999;">Carregando...</p>
+                </div>
+            </div>
+            
+            <!-- ABA: SÉRIES/TURMAS -->
+            <div id="series" class="tab-pane">
+                <div class="form-section">
+                    <h3>Criar Nova Turma</h3>
+                    <form id="form-serie" onsubmit="cadastrarSerie(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nome da Turma *</label>
+                                <input type="text" id="serie-nome" placeholder="Ex: Pré-Escolar A, 1º Ano B" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Ano Letivo *</label>
+                                <input type="number" id="serie-ano" value="2026" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="serie-descricao" placeholder="Turno, observações..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Criar Turma</button>
+                    </form>
+                </div>
+                
+                <h3>Turmas Ativas</h3>
+                <div id="lista-series">
+                    <p style="color: #999;">Carregando...</p>
+                </div>
+            </div>
+            
+            <!-- ABA: DISCIPLINAS -->
+            <div id="disciplinas" class="tab-pane">
+                <div class="form-section">
+                    <h3>Adicionar Nova Disciplina</h3>
+                    <form id="form-disciplina" onsubmit="cadastrarDisciplina(event)">
+                        <div class="form-group">
+                            <label>Nome da Disciplina *</label>
+                            <input type="text" id="disc-nome" placeholder="Ex: Matemática, Português, etc." required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="disc-descricao" placeholder="Descrição da disciplina..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Adicionar Disciplina</button>
+                    </form>
+                </div>
+                
+                <h3>Disciplinas Disponíveis</h3>
+                <div id="lista-disciplinas">
+                    <p style="color: #999;">Carregando...</p>
+                </div>
+            </div>
+            
+            <!-- ABA: SECRETARIA -->
+            <div id="secretaria" class="tab-pane">
+                <div class="nav-tabs" style="margin-bottom: 20px; margin-top: -20px;">
+                    <button onclick="mostrarDocumento('declaracao')" style="padding: 8px 15px; font-size: 0.9em;">📄 Declaração</button>
+                    <button onclick="mostrarDocumento('boletim')" style="padding: 8px 15px; font-size: 0.9em;">📋 Boletim</button>
+                    <button onclick="mostrarDocumento('historico')" style="padding: 8px 15px; font-size: 0.9em;">📚 Histórico</button>
+                </div>
+                
+                <div id="doc-declaracao" class="form-section" style="display: block;">
+                    <h3>Gerar Declaração</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Selecione o Aluno *</label>
+                            <select id="decl-aluno" required>
+                                <option value="">Carregando...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Declaração *</label>
+                            <select id="decl-tipo" required>
+                                <option value="">Selecione um tipo</option>
+                                <option value="matricula">Declaração de Matrícula</option>
+                                <option value="frequencia">Declaração de Frequência</option>
+                                <option value="conclusao">Declaração de Conclusão</option>
+                                <option value="comportamento">Declaração de Bom Comportamento</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="gerarDeclaracao()">Gerar Declaração</button>
+                    <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir</button>
+                </div>
+                
+                <div id="doc-boletim" class="form-section" style="display: none;">
+                    <h3>Gerar Boletim</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Selecione o Aluno *</label>
+                            <select id="boletim-aluno" required>
+                                <option value="">Carregando...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Bimestre *</label>
+                            <select id="boletim-bimestre" required>
+                                <option value="">Selecione</option>
+                                <option value="1">1º Bimestre</option>
+                                <option value="2">2º Bimestre</option>
+                                <option value="3">3º Bimestre</option>
+                                <option value="4">4º Bimestre</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="gerarBoletim()">Gerar Boletim</button>
+                    <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir</button>
+                </div>
+                
+                <div id="doc-historico" class="form-section" style="display: none;">
+                    <h3>Gerar Histórico Escolar</h3>
+                    <div class="form-group">
+                        <label>Selecione o Aluno *</label>
+                        <select id="historico-aluno" required>
+                            <option value="">Carregando...</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="gerarHistorico()">Gerar Histórico</button>
+                    <button class="btn btn-print" onclick="window.print()">🖨️ Imprimir</button>
+                </div>
+                
+                <div id="documento-preview"></div>
+            </div>
+            
+            <!-- ABA: ARQUIVO MORTO -->
+            <div id="arquivo-morto" class="tab-pane">
+                <h3>📂 Arquivo Morto - Dados Deletados</h3>
+                <p style="color: #666; margin-bottom: 20px;">Aqui estão todos os professores e alunos que foram deletados. Você pode restaurá-los a qualquer momento.</p>
+                
+                <div class="form-section">
+                    <h3>👨‍🏫 Professores Deletados</h3>
+                    <div id="lista-professores-mortos" style="margin-top: 20px;">
+                        <p style="color: #999;">Carregando...</p>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>👥 Alunos Deletados</h3>
+                    <div id="lista-alunos-mortos" style="margin-top: 20px;">
+                        <p style="color: #999;">Carregando...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MODAL DE EDIÇÃO -->
+    <div id="modal-editar" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+            <h2 id="modal-titulo">Editar</h2>
+            <form id="form-editar" onsubmit="salvarEdicao(event)">
+                <div id="modal-campos"></div>
+                <div style="margin-top: 20px; display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Salvar</button>
+                    <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="fecharModalEdicao()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let edicaoAtual = { tipo: '', id: null };
+        
+        // Função auxiliar para fazer requisições com token JWT
+        async function fetchComToken(url, opcoes = {}) {
+            const token = localStorage.getItem('access_token');
+            const headers = {
+                'Content-Type': 'application/json',
+                ...opcoes.headers
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            return fetch(url, {
+                ...opcoes,
+                headers
+            });
+        }
+        
+        // Verificar autenticação
+        function verificarAutenticacao() {
+            // Verificar se há token JWT armazenado
+            const token = localStorage.getItem('access_token');
+            const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+            
+            console.log('Token:', token ? 'Presente' : 'Ausente');
+            console.log('UserData:', userData);
+            console.log('Tipo de usuário:', userData.tipo);
+            
+            if (!token || (userData.tipo !== 'administrador' && userData.administrador !== 'sim')) {
+                alert('Acesso negado! Apenas administradores podem acessar.');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('nome-admin').textContent = userData.nome || 'Administrador';
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+        
+        // Função para máscarar CPF (XXX.XXX.XXX-XX)
+        function mascaraCPF(cpf) {
+            cpf = cpf.replace(/\D/g, '');
+            cpf = cpf.substring(0, 11);
+            if (cpf.length <= 3) return cpf;
+            if (cpf.length <= 6) return cpf.replace(/(\d{3})(\d+)/, '$1.$2');
+            if (cpf.length <= 9) return cpf.replace(/(\d{3})(\d{3})(\d+)/, '$1.$2.$3');
+            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+        
+        // Aplicar máscara de CPF aos campos quando são digitados
+        function aplicarMascaraCPF(evento) {
+            evento.target.value = mascaraCPF(evento.target.value);
+        }
+        
+        // Função de Busca
+        async function realizarBusca() {
+            const termo = document.getElementById('buscaInput').value.trim().toLowerCase();
+            
+            if (!termo) {
+                alert('Digite um nome ou matrícula para buscar');
+                return;
+            }
+            
+            try {
+                const resultados = {
+                    alunos: [],
+                    professores: []
+                };
+                
+                // Buscar alunos
+                const alunosResponse = await fetchComToken(`${API_URL}/alunos`);
+                if (!alunosResponse.ok) {
+                    console.error('Erro ao buscar alunos:', alunosResponse.status);
+                } else {
+                    const alunos = await alunosResponse.json();
+                    if (Array.isArray(alunos)) {
+                        resultados.alunos = alunos.filter(a => 
+                            a.nome.toLowerCase().includes(termo) || 
+                            (a.matricula && a.matricula.toLowerCase().includes(termo))
+                        );
+                    }
+                }
+                
+                // Buscar professores
+                const profsResponse = await fetchComToken(`${API_URL}/professores`);
+                if (!profsResponse.ok) {
+                    console.error('Erro ao buscar professores:', profsResponse.status);
+                } else {
+                    const profs = await profsResponse.json();
+                    if (Array.isArray(profs)) {
+                        resultados.professores = profs.filter(p => 
+                            p.nome.toLowerCase().includes(termo) || 
+                            (p.email && p.email.toLowerCase().includes(termo))
+                        );
+                    }
+                }
+                
+                exibirResultadosBusca(resultados);
+            } catch (error) {
+                console.error('Erro ao buscar:', error);
+                alert('Erro ao realizar busca: ' + error.message);
+            }
+        }
+        
+        function limparBusca() {
+            document.getElementById('buscaInput').value = '';
+            document.getElementById('resultadosBusca').style.display = 'none';
+            document.getElementById('resultadosBusca').innerHTML = '';
+        }
+        
+        function exibirResultadosBusca(resultados) {
+            const div = document.getElementById('resultadosBusca');
+            let html = '';
+            
+            if (resultados.alunos.length === 0 && resultados.professores.length === 0) {
+                html = '<p style="color: #999; padding: 20px; text-align: center;">Nenhum resultado encontrado</p>';
+            } else {
+                // Alunos
+                if (resultados.alunos.length > 0) {
+                    html += '<h3 style="color: var(--cor-primaria); margin-bottom: 10px;">👥 Alunos</h3>';
+                    html += '<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;"><tbody>';
+                    
+                    resultados.alunos.forEach(aluno => {
+                        html += `<tr style="cursor: pointer; hover: background: #f5f5f5;" onclick="abrirDetalhesAluno(${aluno.id})">
+                            <td style="padding: 12px; border: 1px solid #ddd;">
+                                <img src="${aluno.foto ? `http://localhost:5000/fotos_alunos/${aluno.foto}` : 'data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Crect fill=\"%23ddd\" width=\"100\" height=\"100\"/%3E%3C/svg%3E'}" alt="Foto" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 10px;">
+                                <strong style="color: var(--cor-primaria); cursor: pointer; text-decoration: underline;">${aluno.nome}</strong>
+                                <br><small style="color: #666;">Matrícula: ${aluno.matricula}</small>
+                            </td>
+                        </tr>`;
+                    });
+                    
+                    html += '</tbody></table>';
+                }
+                
+                // Professores
+                if (resultados.professores.length > 0) {
+                    html += '<h3 style="color: var(--cor-primaria); margin-bottom: 10px;">👨‍🏫 Professores</h3>';
+                    html += '<table style="width: 100%; border-collapse: collapse;"><tbody>';
+                    
+                    resultados.professores.forEach(prof => {
+                        html += `<tr>
+                            <td style="padding: 12px; border: 1px solid #ddd;">
+                                <strong>${prof.nome}</strong>
+                                <br><small style="color: #666;">Email: ${prof.email}</small>
+                            </td>
+                        </tr>`;
+                    });
+                    
+                    html += '</tbody></table>';
+                }
+            }
+            
+            div.innerHTML = html;
+            div.style.display = 'block';
+        }
+        
+        // Função para abrir detalhes completos do aluno
+        async function abrirDetalhesAluno(alunoId) {
+            try {
+                // Buscar dados do aluno
+                const alunoResponse = await fetchComToken(`${API_URL}/alunos`);
+                if (!alunoResponse.ok) {
+                    alert('Erro ao buscar dados do aluno');
+                    return;
+                }
+                const alunos = await alunoResponse.json();
+                const aluno = alunos.find(a => a.id === alunoId);
+                
+                if (!aluno) {
+                    alert('Aluno não encontrado');
+                    return;
+                }
+                
+                // Buscar frequência
+                const freqResponse = await fetchComToken(`${API_URL}/frequencia/${alunoId}`);
+                const frequencia = await freqResponse.json();
+                
+                // Buscar notas
+                const notasResponse = await fetchComToken(`${API_URL}/notas/${alunoId}`);
+                const notas = await notasResponse.json();
+                
+                exibirDetalhesAluno(aluno, frequencia, notas);
+            } catch (error) {
+                console.error('Erro ao carregar detalhes:', error);
+                alert('Erro ao carregar informações do aluno');
+            }
+        }
+        
+        function exibirDetalhesAluno(aluno, frequencia, notas) {
+            const div = document.getElementById('resultadosBusca');
+            let html = '';
+            
+            // Informações de Cadastro
+            html += `
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <h4 style="color: var(--cor-primaria); margin-bottom: 10px;">📋 Informações de Cadastro</h4>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; width: 50%; font-weight: bold;">Nome:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.nome}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Matrícula:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.matricula}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Turma:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.serie_nome || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Data de Nascimento:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.data_nascimento ? new Date(aluno.data_nascimento).toLocaleDateString('pt-BR') : '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Responsável:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.responsavel || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Telefone:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.telefone || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Email:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.email || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">CPF:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.cpf || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Endereço:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.endereco || '-'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">Data de Cadastro:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">${aluno.data_cadastro ? new Date(aluno.data_cadastro).toLocaleDateString('pt-BR') : '-'}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+            
+            // Relatório de Faltas
+            html += `
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <h4 style="color: var(--cor-primaria); margin-bottom: 10px;">📊 Relatório de Faltas - Ano Letivo</h4>
+            `;
+            
+            if (frequencia && frequencia.length > 0) {
+                // Contar presentes e faltas por mês
+                let faltasPorMes = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // Jan a Dez
+                let presentes = 0;
+                let totalFaltas = 0;
+                
+                frequencia.forEach(f => {
+                    if (f.presente) {
+                        presentes++;
+                    } else if (f.observacao !== 'FERIADO' && f.observacao !== 'SEM_AULA') {
+                        totalFaltas++;
+                        const [ano, mes, dia] = f.data.split('-');
+                        faltasPorMes[parseInt(mes) - 1]++;
+                    }
+                });
+                
+                let diasAulaAnual = 200;
+                let percentualFaltas = ((totalFaltas / diasAulaAnual) * 100).toFixed(2);
+                
+                html += `
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+                        <tr style="background: #ffebee;">
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">📊 Total de Faltas (Ano):</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; background: #ffcdd2; font-weight: bold; color: #dc3545;">${totalFaltas}</td>
+                        </tr>
+                        <tr style="background: #e8f5e9;">
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">✓ Total de Presenças:</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; background: #c8e6c9;">${presentes}</td>
+                        </tr>
+                        <tr style="background: #fff3cd;">
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">% Faltas (sobre 200 dias):</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; background: #ffe0b2; font-weight: bold;">${percentualFaltas}%</td>
+                        </tr>
+                    </table>
+                    
+                    <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; font-weight: bold; color: var(--cor-primaria);">📅 Faltas por Mês</summary>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <thead>
+                                <tr style="background: #f0f0f0;">
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Jan</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Fev</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Mar</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Abr</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Mai</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Jun</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Jul</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Ago</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Set</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Out</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Nov</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Dez</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    ${faltasPorMes.map((m, i) => `<td style="padding: 8px; border: 1px solid #ddd; text-align: center; background: ${m > 0 ? '#ffe0e0' : 'white'}; font-weight: bold;">${m}</td>`).join('')}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </details>
+                    
+                    <details style="margin-top: 10px;">
+                        <summary style="cursor: pointer; font-weight: bold; color: var(--cor-primaria);">📋 Ver histórico detalhado</summary>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <thead>
+                                <tr style="background: #f0f0f0;">
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Data</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+                                    <th style="padding: 8px; border: 1px solid #ddd;">Observação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                frequencia.forEach(freq => {
+                    const data = new Date(freq.data).toLocaleDateString('pt-BR');
+                    let status;
+                    if (freq.presente) {
+                        status = '<span style="color: green; font-weight: bold;">✓ Presente</span>';
+                    } else if (freq.observacao === 'FERIADO') {
+                        status = '<span style="color: orange; font-weight: bold;">📅 Feriado</span>';
+                    } else if (freq.observacao === 'SEM_AULA') {
+                        status = '<span style="color: purple; font-weight: bold;">❌ Sem Aula</span>';
+                    } else {
+                        status = '<span style="color: red; font-weight: bold;">✗ Ausente</span>';
+                    }
+                    html += `<tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${data}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${status}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${freq.observacao || '-'}</td>
+                    </tr>`;
+                });
+                
+                html += `
+                            </tbody>
+                        </table>
+                    </details>
+                `;
+            } else {
+                html += '<p style="color: #999;">Nenhum registro de frequência</p>';
+            }
+            
+            html += '</div>';
+            
+            // Boletim de Notas
+            html += `
+                <div style="background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                    <h4 style="color: var(--cor-primaria); margin-bottom: 10px;">📚 Boletim de Notas</h4>
+            `;
+            
+            if (notas && notas.length > 0) {
+                html += '<table style="width: 100%; border-collapse: collapse;">';
+                html += '<thead><tr style="background: #f0f0f0;"><th style="padding: 8px; border: 1px solid #ddd;">Disciplina</th><th style="padding: 8px; border: 1px solid #ddd;">Professor</th><th style="padding: 8px; border: 1px solid #ddd;">Bimestre</th><th style="padding: 8px; border: 1px solid #ddd;">Nota</th><th style="padding: 8px; border: 1px solid #ddd;">Observação</th></tr></thead>';
+                html += '<tbody>';
+                
+                notas.forEach(nota => {
+                    let corNota = '';
+                    if (nota.nota >= 7) corNota = 'background: #c8e6c9;';
+                    else if (nota.nota >= 5) corNota = 'background: #fff9c4;';
+                    else corNota = 'background: #ffcdd2;';
+                    
+                    html += `<tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${nota.disciplina}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${nota.professor_nome || '-'}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">Bimestre ${nota.bimestre}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; ${corNota}">${nota.nota.toFixed(1)}</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">${nota.observacao || '-'}</td>
+                    </tr>`;
+                });
+                
+                html += '</tbody></table>';
+            } else {
+                html += '<p style="color: #999;">Nenhum registro de notas</p>';
+            }
+            
+            html += '</div>';
+            
+            div.innerHTML = html;
+            div.style.display = 'block';
+        }
+        
+        // Permitir busca com Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('buscaInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    realizarBusca();
+                }
+            });
+        });
+        
+        // Mudar de aba
+        function mostrarAba(aba) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(aba).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (aba === 'professores') carregarProfessores();
+            if (aba === 'alunos') carregarAlunos();
+            if (aba === 'series') carregarSeries();
+            if (aba === 'disciplinas') carregarDisciplinas();
+            if (aba === 'arquivo-morto') carregarArquivoMorto();
+        }
+        
+        // ===== FUNÇÕES DE EDIÇÃO MODAL =====
+        
+        function abrirModalEdicao(tipo, id, nome) {
+            edicaoAtual = { tipo, id };
+            document.getElementById('modal-titulo').textContent = `Editar ${tipo}`;
+            document.getElementById('modal-editar').style.display = 'flex';
+            
+            let html = '';
+            switch(tipo) {
+                case 'Professor':
+                    html = `
+                        <div class="form-group">
+                            <label>Nome Completo</label>
+                            <input type="text" id="edit-nome" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="edit-email" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF</label>
+                            <input type="text" id="edit-cpf" class="form-input" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label>Data de Nascimento</label>
+                            <input type="date" id="edit-data-nascimento" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Celular</label>
+                            <input type="tel" id="edit-celular" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Endereço</label>
+                            <input type="text" id="edit-endereco" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Gerenciar Turmas Atuais</label>
+                            <div id="edit-turmas-atuais" style="padding: 10px; background: #f0f0f0; border-radius: 5px; margin-top: 5px;">
+                                <p style="color: #999;">Carregando turmas...</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Adicionar Nova Turma</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="edit-turma-nova" class="form-input" style="flex: 1;">
+                                    <option value="">Selecione uma turma</option>
+                                </select>
+                                <button type="button" onclick="adicionarTurmaProfessor()" class="btn btn-primary" style="padding: 10px 20px;">+ Adicionar</button>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'Aluno':
+                    html = `
+                        <div class="form-group">
+                            <label>Nome Completo</label>
+                            <input type="text" id="edit-nome" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="edit-email" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF do Aluno</label>
+                            <input type="text" id="edit-cpf" class="form-input" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label>CPF do Responsável</label>
+                            <input type="text" id="edit-cpf-responsavel" class="form-input" placeholder="000.000.000-00">
+                        </div>
+                        <div class="form-group">
+                            <label>Endereço</label>
+                            <input type="text" id="edit-endereco" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Senha</label>
+                            <input type="password" id="edit-senha" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Matrícula (Automática)</label>
+                            <input type="text" id="edit-matricula" class="form-input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Responsável</label>
+                            <input type="text" id="edit-responsavel" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="tel" id="edit-telefone" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Mudança de Turma</label>
+                            <select id="edit-serie-nova" class="form-input">
+                                <option value="">Manter turma atual</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+                case 'Turma':
+                    html = `
+                        <div class="form-group">
+                            <label>Nome da Turma</label>
+                            <input type="text" id="edit-nome" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Ano</label>
+                            <input type="number" id="edit-ano" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="edit-descricao" class="form-input"></textarea>
+                        </div>
+                    `;
+                    break;
+                case 'Disciplina':
+                    html = `
+                        <div class="form-group">
+                            <label>Nome da Disciplina</label>
+                            <input type="text" id="edit-nome" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Descrição</label>
+                            <textarea id="edit-descricao" class="form-input"></textarea>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            document.getElementById('modal-campos').innerHTML = html;
+            
+            // Carregar dados atuais
+            carregarDadosEdicao(tipo, id);
+        }
+        
+        async function carregarDadosEdicao(tipo, id) {
+            const endpoints = {
+                'Professor': '/professores',
+                'Aluno': '/alunos',
+                'Turma': '/series',
+                'Disciplina': '/disciplinas'
+            };
+            
+            try {
+                const response = await fetchComToken(`${API_URL}${endpoints[tipo]}/${id}`);
+                const data = await response.json();
+                
+                // Preencher campos (assumindo que retorna um array, pega o primeiro)
+                const item = Array.isArray(data) ? data[0] : data;
+                if (!item) return;
+                
+                // Se for professor, carregar turmas e disciplinas
+                if (tipo === 'Professor') {
+                    try {
+                        console.log('Carregando turmas para professor:', id);
+                        
+                        // Verificar se elementos existem
+                        const turmasAtuaisEl = document.getElementById('edit-turmas-atuais');
+                        const turmaNovaSel = document.getElementById('edit-turma-nova');
+                        
+                        if (!turmasAtuaisEl || !turmaNovaSel) {
+                            console.error('Elementos não encontrados:', {
+                                'edit-turmas-atuais': !!turmasAtuaisEl,
+                                'edit-turma-nova': !!turmaNovaSel
+                            });
+                            return;
+                        }
+                        
+                        // Carregar turmas atuais
+                        const seriesResponse = await fetchComToken(`${API_URL}/professores/${id}/series`);
+                        if (!seriesResponse.ok) throw new Error(`Erro HTTP ${seriesResponse.status}`);
+                        const turmasAtuais = await seriesResponse.json();
+                        
+                        console.log('Turmas atuais:', turmasAtuais);
+                        
+                        let turmasHtml = '';
+                        if (turmasAtuais.length > 0) {
+                            turmasHtml = '<div style="display: flex; flex-wrap: wrap; gap: 10px;">';
+                            turmasAtuais.forEach(turma => {
+                                turmasHtml += `<div style="background: #e8f5e9; padding: 8px 12px; border-radius: 20px; display: flex; align-items: center; gap: 8px;">
+                                    <span>${turma.nome}</span>
+                                    <button type="button" onclick="removerTurmaProfessor(${id}, ${turma.id})" style="background: #f44336; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px;">×</button>
+                                </div>`;
+                            });
+                            turmasHtml += '</div>';
+                        } else {
+                            turmasHtml = '<p style="color: #999;">Nenhuma turma atribuída</p>';
+                        }
+                        
+                        turmasAtuaisEl.innerHTML = turmasHtml;
+                        
+                        // Popular select de novas turmas
+                        const allSeriesResponse = await fetchComToken(`${API_URL}/series`);
+                        if (!allSeriesResponse.ok) throw new Error(`Erro HTTP ${allSeriesResponse.status}`);
+                        const allSeries = await allSeriesResponse.json();
+                        const serieIds = turmasAtuais.map(t => t.id);
+                        
+                        console.log('Todas as séries:', allSeries);
+                        console.log('IDs já associados:', serieIds);
+                        
+                        let selectHtml = '<option value="">Selecione uma turma</option>';
+                        allSeries.forEach(serie => {
+                            if (!serieIds.includes(serie.id)) {
+                                selectHtml += `<option value="${serie.id}">${serie.nome}</option>`;
+                            }
+                        });
+                        
+                        turmaNovaSel.innerHTML = selectHtml;
+                        console.log('Select preenchido:', turmaNovaSel.innerHTML);
+                    } catch (e) {
+                        console.error('Erro ao carregar turmas:', e);
+                        alert('⚠️ Erro ao carregar turmas: ' + e.message);
+                    }
+                }
+                
+                // Se for aluno, carregar turma atual e opções de mudança
+                if (tipo === 'Aluno') {
+                    try {
+                        console.log('Carregando séries para aluno:', id);
+                        
+                        const serieNovaSelect = document.getElementById('edit-serie-nova');
+                        if (!serieNovaSelect) {
+                            console.error('Elemento edit-serie-nova não encontrado');
+                            return;
+                        }
+                        
+                        const allSeriesResponse = await fetchComToken(`${API_URL}/series`);
+                        if (!allSeriesResponse.ok) throw new Error(`Erro HTTP ${allSeriesResponse.status}`);
+                        const allSeries = await allSeriesResponse.json();
+                        
+                        console.log('Séries disponíveis:', allSeries);
+                        console.log('Série atual do aluno:', item.serie_id);
+                        
+                        let selectHtml = '<option value="">Manter turma atual</option>';
+                        allSeries.forEach(serie => {
+                            selectHtml += `<option value="${serie.id}">${serie.nome}</option>`;
+                        });
+                        
+                        serieNovaSelect.innerHTML = selectHtml;
+                        console.log('Select de séries preenchido:', serieNovaSelect.innerHTML);
+                    } catch (e) {
+                        console.error('Erro ao carregar séries:', e);
+                        alert('⚠️ Erro ao carregar séries: ' + e.message);
+                    }
+                }
+                
+                if (document.getElementById('edit-nome')) {
+                    document.getElementById('edit-nome').value = item.nome || '';
+                }
+                if (document.getElementById('edit-email')) {
+                    document.getElementById('edit-email').value = item.email || '';
+                }
+                if (document.getElementById('edit-cpf')) {
+                    document.getElementById('edit-cpf').value = item.cpf || '';
+                }
+                if (document.getElementById('edit-data-nascimento')) {
+                    document.getElementById('edit-data-nascimento').value = item.data_nascimento || '';
+                }
+                if (document.getElementById('edit-celular')) {
+                    document.getElementById('edit-celular').value = item.celular || '';
+                }
+                if (document.getElementById('edit-endereco')) {
+                    document.getElementById('edit-endereco').value = item.endereco || '';
+                }
+                if (document.getElementById('edit-cpf-responsavel')) {
+                    document.getElementById('edit-cpf-responsavel').value = item.cpf_responsavel || '';
+                }
+                if (document.getElementById('edit-senha')) {
+                    document.getElementById('edit-senha').value = item.senha || '';
+                }
+                if (document.getElementById('edit-matricula')) {
+                    document.getElementById('edit-matricula').value = item.matricula || '';
+                }
+                if (document.getElementById('edit-responsavel')) {
+                    document.getElementById('edit-responsavel').value = item.responsavel || '';
+                }
+                if (document.getElementById('edit-telefone')) {
+                    document.getElementById('edit-telefone').value = item.telefone || '';
+                }
+                if (document.getElementById('edit-ano')) {
+                    document.getElementById('edit-ano').value = item.ano || '';
+                }
+                if (document.getElementById('edit-descricao')) {
+                    document.getElementById('edit-descricao').value = item.descricao || '';
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+            }
+        }
+        
+        async function salvarEdicao(event) {
+            event.preventDefault();
+            
+            const tipo = edicaoAtual.tipo;
+            const id = edicaoAtual.id;
+            
+            const endpoints = {
+                'Professor': '/professores',
+                'Aluno': '/alunos',
+                'Turma': '/series',
+                'Disciplina': '/disciplinas'
+            };
+            
+            let dados = {};
+            switch(tipo) {
+                case 'Professor':
+                    dados = {
+                        nome: document.getElementById('edit-nome').value,
+                        email: document.getElementById('edit-email').value,
+                        cpf: document.getElementById('edit-cpf').value,
+                        data_nascimento: document.getElementById('edit-data-nascimento').value,
+                        celular: document.getElementById('edit-celular').value,
+                        endereco: document.getElementById('edit-endereco').value
+                    };
+                    break;
+                case 'Aluno':
+                    dados = {
+                        nome: document.getElementById('edit-nome').value,
+                        email: document.getElementById('edit-email').value,
+                        cpf: document.getElementById('edit-cpf').value,
+                        cpf_responsavel: document.getElementById('edit-cpf-responsavel').value,
+                        endereco: document.getElementById('edit-endereco').value,
+                        senha: document.getElementById('edit-senha').value,
+                        responsavel: document.getElementById('edit-responsavel').value,
+                        telefone: document.getElementById('edit-telefone').value
+                    };
+                    
+                    // Adicionar serie_id se foi selecionada uma mudança de turma
+                    const novaSerieId = document.getElementById('edit-serie-nova').value;
+                    if (novaSerieId) {
+                        dados.serie_id = parseInt(novaSerieId);
+                    }
+                    break;
+                case 'Turma':
+                    dados = {
+                        nome: document.getElementById('edit-nome').value,
+                        ano: parseInt(document.getElementById('edit-ano').value),
+                        descricao: document.getElementById('edit-descricao').value
+                    };
+                    break;
+                case 'Disciplina':
+                    dados = {
+                        nome: document.getElementById('edit-nome').value,
+                        descricao: document.getElementById('edit-descricao').value
+                    };
+                    break;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}${endpoints[tipo]}/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(dados)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ ' + tipo + ' atualizado com sucesso!');
+                    fecharModalEdicao();
+                    
+                    // Recarregar dados
+                    if (tipo === 'Professor') carregarProfessores();
+                    if (tipo === 'Aluno') carregarAlunos();
+                    if (tipo === 'Turma') carregarSeries();
+                    if (tipo === 'Disciplina') carregarDisciplinas();
+                } else {
+                    alert('❌ Erro: ' + (result.erro || 'Erro ao atualizar ' + tipo.toLowerCase()));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro na requisição');
+            }
+        }
+        
+        function fecharModalEdicao() {
+            document.getElementById('modal-editar').style.display = 'none';
+        }
+        
+        // Fechar modal ao clicar fora
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('modal-editar');
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    fecharModalEdicao();
+                }
+            });
+        });
+        
+        // ===== ARQUIVO MORTO =====
+        
+        async function carregarArquivoMorto() {
+            try {
+                const response = await fetchComToken(`${API_URL}/arquivo-morto`);
+                const data = await response.json();
+                
+                // Listar professores mortos
+                let htmlProfs = '';
+                if (data.professores && data.professores.length > 0) {
+                    htmlProfs = '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;"><thead><tr style="background: #f0f0f0;"><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Nome</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Email</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Data Exclusão</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Ações</th></tr></thead><tbody>';
+                    data.professores.forEach(prof => {
+                        const dataExclusao = prof.data_exclusao ? new Date(prof.data_exclusao).toLocaleDateString('pt-BR') : '-';
+                        htmlProfs += `<tr style="border: 1px solid #ddd;"><td style="padding: 10px; border: 1px solid #ddd;">${prof.nome}</td><td style="padding: 10px; border: 1px solid #ddd;">${prof.email}</td><td style="padding: 10px; border: 1px solid #ddd;">${dataExclusao}</td><td style="padding: 10px; border: 1px solid #ddd;"><button class="btn btn-primary" onclick="restaurarProfessor(${prof.id}, '${prof.nome}')" style="padding: 5px 10px; font-size: 0.9em;">♻️ Restaurar</button></td></tr>`;
+                    });
+                    htmlProfs += '</tbody></table>';
+                } else {
+                    htmlProfs = '<p style="color: #999;">Nenhum professor deletado</p>';
+                }
+                document.getElementById('lista-professores-mortos').innerHTML = htmlProfs;
+                
+                // Listar alunos mortos
+                let htmlAlunos = '';
+                if (data.alunos && data.alunos.length > 0) {
+                    htmlAlunos = '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;"><thead><tr style="background: #f0f0f0;"><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Nome</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Matrícula</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Data Exclusão</th><th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Ações</th></tr></thead><tbody>';
+                    data.alunos.forEach(aluno => {
+                        const dataExclusao = aluno.data_exclusao ? new Date(aluno.data_exclusao).toLocaleDateString('pt-BR') : '-';
+                        htmlAlunos += `<tr style="border: 1px solid #ddd;"><td style="padding: 10px; border: 1px solid #ddd;">${aluno.nome}</td><td style="padding: 10px; border: 1px solid #ddd;">${aluno.matricula}</td><td style="padding: 10px; border: 1px solid #ddd;">${dataExclusao}</td><td style="padding: 10px; border: 1px solid #ddd;"><button class="btn btn-primary" onclick="restaurarAluno(${aluno.id}, '${aluno.nome}')" style="padding: 5px 10px; font-size: 0.9em;">♻️ Restaurar</button></td></tr>`;
+                    });
+                    htmlAlunos += '</tbody></table>';
+                } else {
+                    htmlAlunos = '<p style="color: #999;">Nenhum aluno deletado</p>';
+                }
+                document.getElementById('lista-alunos-mortos').innerHTML = htmlAlunos;
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+        
+        async function restaurarProfessor(professorId, nome) {
+            if (!confirm(`Restaurar professor ${nome}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/arquivo-morto/restaurar/professor/${professorId}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    alert('✅ Professor restaurado com sucesso!');
+                    carregarArquivoMorto();
+                } else {
+                    alert('❌ Erro ao restaurar professor');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+        
+        async function restaurarAluno(alunoId, nome) {
+            if (!confirm(`Restaurar aluno ${nome}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/arquivo-morto/restaurar/aluno/${alunoId}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    alert('✅ Aluno restaurado com sucesso!');
+                    carregarArquivoMorto();
+                } else {
+                    alert('❌ Erro ao restaurar aluno');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+        
+        // Carregar dados
+        async function carregarDisciplinas() {
+            try {
+                const response = await fetchComToken(`${API_URL}/disciplinas`);
+                if (!response.ok) {
+                    console.error('Erro ao buscar disciplinas:', response.status);
+                    document.getElementById('lista-disciplinas').innerHTML = '<p style="color: #999;">Erro ao carregar disciplinas</p>';
+                    return;
+                }
+                const data = await response.json();
+                
+                // Preencher select de disciplinas
+                const selectDisciplinas = document.getElementById('select-disciplinas');
+                let html = '';
+                data.forEach(disc => {
+                    html += `<label><input type="checkbox" value="${disc.id}" name="disciplinas"> ${disc.nome}</label>`;
+                });
+                selectDisciplinas.innerHTML = html || '<p style="color:#999;">Nenhuma disciplina cadastrada</p>';
+                
+                // Atualizar estatística
+                document.getElementById('stat-disciplinas').textContent = data.length;
+                
+                // Listar disciplinas
+                let tableHtml = '<table><thead><tr><th>Disciplina</th><th>Descrição</th><th>Ações</th></tr></thead><tbody>';
+                data.forEach(disc => {
+                    tableHtml += `<tr><td>${disc.nome}</td><td>${disc.descricao || '-'}</td><td><button class="btn btn-secondary" onclick="abrirModalEdicao('Disciplina', ${disc.id}, '${disc.nome}')" style="margin-right: 5px; padding: 5px 10px; font-size: 0.9em;">✏️ Editar</button><button class="btn btn-danger" onclick="excluirDisciplina(${disc.id}, '${disc.nome}')" style="padding: 5px 10px; font-size: 0.9em;">🗑️ Excluir</button></td></tr>`;
+                });
+                tableHtml += '</tbody></table>';
+                document.getElementById('lista-disciplinas').innerHTML = tableHtml;
+            } catch (error) {
+                console.error('Erro ao carregar disciplinas:', error);
+            }
+        }
+        
+        async function carregarSeries() {
+            try {
+                const response = await fetchComToken(`${API_URL}/series`);
+                if (!response.ok) {
+                    console.error('Erro ao buscar séries:', response.status);
+                    document.getElementById('lista-series').innerHTML = '<p style="color: #999;">Erro ao carregar turmas</p>';
+                    return;
+                }
+                const data = await response.json();
+                
+                // Preencher select de séries
+                const selectSeries = document.getElementById('select-series');
+                let html = '';
+                data.forEach(serie => {
+                    html += `<label><input type="checkbox" value="${serie.id}" name="series"> ${serie.nome} (${serie.ano})</label>`;
+                });
+                selectSeries.innerHTML = html || '<p style="color:#999;">Nenhuma turma cadastrada</p>';
+                
+                // Selects de alunos
+                const selectAluno = document.getElementById('aluno-serie');
+                let optionsHtml = '<option value="">Selecione uma turma</option>';
+                data.forEach(serie => {
+                    optionsHtml += `<option value="${serie.id}">${serie.nome} (${serie.ano})</option>`;
+                });
+                selectAluno.innerHTML = optionsHtml;
+                
+                // Atualizar estatística
+                document.getElementById('stat-series').textContent = data.length;
+                
+                // Listar séries
+                let tableHtml = '<table><thead><tr><th>Turma</th><th>Ano</th><th>Descrição</th><th>Ações</th></tr></thead><tbody>';
+                data.forEach(serie => {
+                    tableHtml += `<tr><td>${serie.nome}</td><td>${serie.ano}</td><td>${serie.descricao || '-'}</td><td><button class="btn btn-secondary" onclick="abrirModalEdicao('Turma', ${serie.id}, '${serie.nome}')" style="margin-right: 5px; padding: 5px 10px; font-size: 0.9em;">✏️ Editar</button><button class="btn btn-danger" onclick="excluirSerie(${serie.id}, '${serie.nome}')" style="padding: 5px 10px; font-size: 0.9em;">🗑️ Excluir</button></td></tr>`;
+                });
+                tableHtml += '</tbody></table>';
+                document.getElementById('lista-series').innerHTML = tableHtml;
+            } catch (error) {
+                console.error('Erro ao carregar séries:', error);
+            }
+        }
+        
+        async function carregarProfessores() {
+            try {
+                const response = await fetchComToken(`${API_URL}/professores`);
+                if (!response.ok) {
+                    console.error('Erro ao buscar professores:', response.status);
+                    document.getElementById('lista-professores').innerHTML = '<p style="color: #999;">Erro ao carregar professores</p>';
+                    return;
+                }
+                const data = await response.json();
+                
+                document.getElementById('stat-prof').textContent = data.length;
+                
+                let html = '<table><thead><tr><th>Nome</th><th>Turma(s)</th><th>Celular</th><th>Ações</th></tr></thead><tbody>';
+                
+                for (const prof of data) {
+                    // Buscar turmas do professor
+                    let turmas = [];
+                    try {
+                        const seriesResponse = await fetchComToken(`${API_URL}/professores/${prof.id}/series`);
+                        if (seriesResponse.ok) {
+                            turmas = await seriesResponse.json();
+                        }
+                    } catch (error) {
+                        console.error(`Erro ao buscar turmas do professor ${prof.id}:`, error);
+                    }
+                    
+                    const nomeTurmas = turmas.length > 0 
+                        ? turmas.map(t => `${t.nome} (${t.ano})`).join(', ')
+                        : '-';
+                    
+                    html += `<tr><td>${prof.nome}</td><td>${nomeTurmas}</td><td>${prof.celular || '-'}</td><td><button class="btn btn-secondary" onclick="abrirModalEdicao('Professor', ${prof.id}, '${prof.nome}')" style="margin-right: 5px; padding: 5px 10px; font-size: 0.9em;">✏️ Editar</button><button class="btn btn-danger" onclick="excluirProfessor(${prof.id}, '${prof.nome}')" style="padding: 5px 10px; font-size: 0.9em;">🗑️ Excluir</button></td></tr>`;
+                }
+                
+                html += '</tbody></table>';
+                document.getElementById('lista-professores').innerHTML = html;
+            } catch (error) {
+                console.error('Erro ao carregar professores:', error);
+            }
+        }
+        
+        async function carregarAlunos() {
+            try {
+                const response = await fetchComToken(`${API_URL}/alunos`);
+                if (!response.ok) {
+                    console.error('Erro ao buscar alunos:', response.status);
+                    document.getElementById('lista-alunos').innerHTML = '<p style="color: #999;">Erro ao carregar alunos</p>';
+                    return;
+                }
+                const data = await response.json();
+                
+                document.getElementById('stat-alunos').textContent = data.length;
+                
+                // Preencher selects
+                const selects = ['decl-aluno', 'boletim-aluno', 'historico-aluno'];
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    let html = '<option value="">Selecione um aluno</option>';
+                    data.forEach(aluno => {
+                        html += `<option value="${aluno.id}">${aluno.nome}</option>`;
+                    });
+                    select.innerHTML = html;
+                });
+                
+                // Listar alunos com fotos
+                let tableHtml = '<table style="width: 100%; border-collapse: collapse;"><thead><tr style="background: #f0f0f0;"><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Foto</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Nome</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Matrícula</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Turma</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Responsável</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Celular</th><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Ações</th></tr></thead><tbody>';
+                data.forEach(aluno => {
+                    const fotoUrl = aluno.foto ? `http://localhost:5000/fotos_alunos/${aluno.foto}` : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext x="50" y="55" font-size="14" fill="%23999" text-anchor="middle" dominant-baseline="middle"%3ESem foto%3C/text%3E%3C/svg%3E';
+                    tableHtml += `<tr>
+                        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                            <img src="${fotoUrl}" alt="${aluno.nome}" style="width: 50px; height: 50px; border-radius: 5px; object-fit: cover;">
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${aluno.nome}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${aluno.matricula}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${aluno.serie_nome || '-'}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${aluno.responsavel || '-'}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">${aluno.telefone || '-'}</td>
+                        <td style="padding: 10px; border: 1px solid #ddd;">
+                            <button class="btn btn-secondary" onclick="abrirModalEdicao('Aluno', ${aluno.id}, '${aluno.nome}')" style="margin-right: 5px; padding: 5px 10px; font-size: 0.9em;">Editar</button>
+                            <button class="btn btn-danger" onclick="excluirAluno(${aluno.id}, '${aluno.nome}')" style="padding: 5px 10px; font-size: 0.9em;">Excluir</button>
+                        </td>
+                    </tr>`;
+                });
+                tableHtml += '</tbody></table>';
+                document.getElementById('lista-alunos').innerHTML = tableHtml;
+            } catch (error) {
+                console.error('Erro ao carregar alunos:', error);
+            }
+        }
+        
+        // Cadastros
+        async function cadastrarProfessor(event) {
+            event.preventDefault();
+            
+            const disciplinas = Array.from(document.querySelectorAll('input[name="disciplinas"]:checked')).map(el => el.value);
+            const series = Array.from(document.querySelectorAll('input[name="series"]:checked')).map(el => el.value);
+            
+            if (disciplinas.length === 0 || series.length === 0) {
+                alert('Selecione pelo menos uma disciplina e uma turma!');
+                return;
+            }
+            
+            const data = {
+                nome: document.getElementById('prof-nome').value,
+                email: document.getElementById('prof-email').value,
+                senha: document.getElementById('prof-senha').value,
+                cpf: document.getElementById('prof-cpf').value,
+                data_nascimento: document.getElementById('prof-nascimento').value,
+                celular: document.getElementById('prof-celular').value,
+                endereco: document.getElementById('prof-endereco').value,
+                foto: document.getElementById('prof-foto').value,
+                disciplinas: disciplinas,
+                series: series
+            };
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/professores`, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Professor cadastrado com sucesso!');
+                    document.getElementById('form-professor').reset();
+                    carregarProfessores();
+                } else {
+                    alert('❌ Erro ao cadastrar professor');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro na requisição');
+            }
+        }
+        
+        async function cadastrarAluno(event) {
+            event.preventDefault();
+            
+            const data = {
+                nome: document.getElementById('aluno-nome').value,
+                email: document.getElementById('aluno-email').value,
+                cpf: document.getElementById('aluno-cpf').value,
+                cpf_responsavel: document.getElementById('aluno-cpf-responsavel').value,
+                endereco: document.getElementById('aluno-endereco').value,
+                senha: document.getElementById('aluno-senha').value,
+                serie_id: document.getElementById('aluno-serie').value,
+                data_nascimento: document.getElementById('aluno-nascimento').value,
+                responsavel: document.getElementById('aluno-responsavel').value,
+                telefone: document.getElementById('aluno-telefone').value,
+                foto: null
+            };
+            
+            // Processar foto se fornecida
+            const fileInput = document.getElementById('aluno-foto');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    data.foto = e.target.result; // Base64
+                    enviarCadastroAluno(data);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                enviarCadastroAluno(data);
+            }
+        }
+        
+        async function enviarCadastroAluno(data) {
+            try {
+                const response = await fetchComToken(`${API_URL}/alunos`, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const resultado = await response.json();
+                    alert(`Aluno cadastrado com sucesso! Matricula: ${resultado.matricula}`);
+                    document.getElementById('form-aluno').reset();
+                    carregarAlunos();
+                } else {
+                    alert('Erro ao cadastrar aluno');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+        
+        async function cadastrarSerie(event) {
+            event.preventDefault();
+            
+            const data = {
+                nome: document.getElementById('serie-nome').value,
+                ano: parseInt(document.getElementById('serie-ano').value),
+                descricao: document.getElementById('serie-descricao').value
+            };
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/series`, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Turma cadastrada com sucesso!');
+                    document.getElementById('form-serie').reset();
+                    carregarSeries();
+                } else {
+                    alert('❌ Erro: ' + (result.erro || 'Erro ao cadastrar turma'));
+                    console.error('Erro da API:', result);
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro ao conectar com o servidor');
+            }
+        }
+        
+        async function cadastrarDisciplina(event) {
+            event.preventDefault();
+            
+            const data = {
+                nome: document.getElementById('disc-nome').value,
+                descricao: document.getElementById('disc-descricao').value
+            };
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/disciplinas`, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    alert('✅ Disciplina adicionada com sucesso!');
+                    document.getElementById('form-disciplina').reset();
+                    carregarDisciplinas();
+                } else {
+                    alert('❌ Erro ao adicionar disciplina');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+        
+        // ===== FUNÇÕES DE EXCLUSÃO =====
+        
+        async function excluirProfessor(professorId, nome) {
+            if (!confirm(`Tem certeza que deseja excluir o professor ${nome}?\n\nEsta ação é irreversível!`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/professores/${professorId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Professor excluído com sucesso!');
+                    carregarProfessores();
+                } else {
+                    alert('❌ Erro: ' + (result.erro || 'Erro ao excluir professor'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro na requisição');
+            }
+        }
+        
+        async function excluirDisciplina(disciplinaId, nome) {
+            if (!confirm(`Tem certeza que deseja excluir a disciplina ${nome}?\n\nEsta ação é irreversível!`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/disciplinas/${disciplinaId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Disciplina excluída com sucesso!');
+                    carregarDisciplinas();
+                } else {
+                    alert('❌ Erro: ' + (result.erro || 'Erro ao excluir disciplina'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro na requisição');
+            }
+        }
+        
+        async function excluirSerie(serieId, nome) {
+            if (!confirm(`Tem certeza que deseja excluir a turma ${nome}?\n\nTodos os alunos e registros serão removidos também!\nEsta ação é irreversível!`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/series/${serieId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Turma excluída com sucesso!');
+                    carregarSeries();
+                } else {
+                    alert('❌ Erro: ' + (result.erro || 'Erro ao excluir turma'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro na requisição');
+            }
+        }
+        
+        async function excluirAluno(alunoId, nome) {
+            if (!confirm(`Tem certeza que deseja excluir o aluno ${nome}?\n\nTodos os registros de frequência e notas serão removidos também!\nEsta ação é irreversível!`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/alunos/${alunoId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Aluno excluído com sucesso!');
+                    carregarAlunos();
+                } else {
+                    alert('❌ Erro: ' + (result.erro || 'Erro ao excluir aluno'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro na requisição');
+            }
+        }
+        
+        // Gerenciamento de Turmas do Professor
+        async function adicionarTurmaProfessor() {
+            const turmaSelect = document.getElementById('edit-turma-nova');
+            const turmaId = turmaSelect.value;
+            
+            if (!turmaId) {
+                alert('Por favor, selecione uma turma');
+                return;
+            }
+            
+            const professorId = edicaoAtual.id;
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/professores/${professorId}/series/${turmaId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    // Recarregar as turmas na modal
+                    await carregarDadosEdicao('Professor', professorId);
+                    alert('✅ Turma adicionada com sucesso!');
+                } else {
+                    const error = await response.json();
+                    alert('❌ ' + (error.erro || 'Erro ao adicionar turma'));
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro na requisição');
+            }
+        }
+        
+        async function removerTurmaProfessor(professorId, turmaId) {
+            if (!confirm('Tem certeza que deseja remover essa turma do professor?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/professores/${professorId}/series/${turmaId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    // Recarregar as turmas na modal
+                    await carregarDadosEdicao('Professor', professorId);
+                    alert('✅ Turma removida com sucesso!');
+                } else {
+                    alert('❌ Erro ao remover turma');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('❌ Erro na requisição');
+            }
+        }
+        
+        // Templates de documentos
+        function mostrarDocumento(tipo) {
+            document.querySelectorAll('[id^="doc-"]').forEach(el => el.style.display = 'none');
+            document.getElementById(`doc-${tipo}`).style.display = 'block';
+            event.target.classList.add('active');
+        }
+        
+        function gerarDeclaracao() {
+            const alunoId = document.getElementById('decl-aluno').value;
+            const tipo = document.getElementById('decl-tipo').value;
+            
+            if (!alunoId || !tipo) {
+                alert('Selecione aluno e tipo de declaração!');
+                return;
+            }
+            
+            // Template HTML
+            const html = `
+                <div class="documento-template">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h2>CENTRO EDUCACIONAL LETRAS & CORES</h2>
+                        <p style="color: #666;">CNPJ: 00.000.000/0000-00</p>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 40px 0;">
+                        <h3>DECLARAÇÃO</h3>
+                    </div>
+                    
+                    <p style="line-height: 1.8; text-align: justify;">
+                        Declaro para os devidos fins que <strong>_________________________</strong>, 
+                        portador(a) do documento de identidade nº <strong>_________________________</strong>, 
+                        está devidamente matriculado(a) nesta instituição de ensino no período de <strong>2026</strong>.
+                    </p>
+                    
+                    <p style="line-height: 1.8; text-align: justify; margin-top: 20px;">
+                        A presente declaração é emitida a pedido do(a) interessado(a) para fins de <strong>${tipo}</strong>.
+                    </p>
+                    
+                    <div style="margin-top: 60px; text-align: center;">
+                        <p>Local e data: _________________________, _____ de ______________ de 2026.</p>
+                    </div>
+                    
+                    <div style="margin-top: 60px;">
+                        <p style="text-align: center;">_____________________________</p>
+                        <p style="text-align: center; font-size: 0.9em;">Diretor(a) / Responsável</p>
+                        <p style="text-align: center; margin-top: 5px;">Nome: _________________________</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('documento-preview').innerHTML = html;
+        }
+        
+        function gerarBoletim() {
+            const alunoId = document.getElementById('boletim-aluno').value;
+            const bimestre = document.getElementById('boletim-bimestre').value;
+            
+            if (!alunoId || !bimestre) {
+                alert('Selecione aluno e bimestre!');
+                return;
+            }
+            
+            const html = `
+                <div class="documento-template">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2>CENTRO EDUCACIONAL LETRAS & CORES</h2>
+                        <h3>BOLETIM ESCOLAR - ${bimestre}º BIMESTRE</h3>
+                    </div>
+                    
+                    <div style="margin: 20px 0; border: 1px solid #ddd; padding: 15px;">
+                        <p><strong>Aluno(a):</strong> _________________________</p>
+                        <p><strong>Turma:</strong> _________________________</p>
+                        <p><strong>Ano Letivo:</strong> 2026</p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="background: #f0f0f0;">
+                                <th style="border: 1px solid #ddd; padding: 10px;">Disciplina</th>
+                                <th style="border: 1px solid #ddd; padding: 10px;">Nota</th>
+                                <th style="border: 1px solid #ddd; padding: 10px;">Conceito</th>
+                                <th style="border: 1px solid #ddd; padding: 10px;">Frequência</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 10px;">Português</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____%</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 10px;">Matemática</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____%</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 10px;">Ciências</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____%</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 10px;">História</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div style="margin-top: 30px;">
+                        <p><strong>Observações:</strong></p>
+                        <p style="border: 1px solid #ddd; padding: 10px; height: 60px;"></p>
+                    </div>
+                    
+                    <div style="margin-top: 40px; text-align: center;">
+                        <p>_____________________________</p>
+                        <p style="font-size: 0.9em;">Professora/Responsável</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('documento-preview').innerHTML = html;
+        }
+        
+        function gerarHistorico() {
+            const alunoId = document.getElementById('historico-aluno').value;
+            
+            if (!alunoId) {
+                alert('Selecione um aluno!');
+                return;
+            }
+            
+            const html = `
+                <div class="documento-template">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <h2>CENTRO EDUCACIONAL LETRAS & CORES</h2>
+                        <h3>HISTÓRICO ESCOLAR</h3>
+                    </div>
+                    
+                    <div style="margin: 20px 0; border: 1px solid #ddd; padding: 15px;">
+                        <p><strong>Aluno(a):</strong> _________________________</p>
+                        <p><strong>Data de Nascimento:</strong> _________________________</p>
+                        <p><strong>Filiação:</strong> _________________________</p>
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="background: #f0f0f0;">
+                                <th style="border: 1px solid #ddd; padding: 10px;">Série/Ano</th>
+                                <th style="border: 1px solid #ddd; padding: 10px;">Ano Letivo</th>
+                                <th style="border: 1px solid #ddd; padding: 10px;">Resultado</th>
+                                <th style="border: 1px solid #ddd; padding: 10px;">Observações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 10px;">Pré-Escolar</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">2024</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 10px;">1º Ano</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">2025</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                                <td style="border: 1px solid #ddd; padding: 10px;">_____</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div style="margin-top: 40px; text-align: center;">
+                        <p>Local e data: _________________________, _____ de ______________ de 2026.</p>
+                        <p style="margin-top: 50px;">_____________________________</p>
+                        <p style="font-size: 0.9em;">Diretor(a) / Responsável</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('documento-preview').innerHTML = html;
+        }
+        
+        // Inicializar
+        verificarAutenticacao();
+        carregarDisciplinas();
+        carregarSeries();
+        carregarAlunos();
+        carregarProfessores();
+    </script>
+</body>
+</html>

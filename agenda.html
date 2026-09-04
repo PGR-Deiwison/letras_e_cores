@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda - Letras & Cores</title>
+    <link rel="icon" type="image/png" href="imagens/logo.png">
+    <link rel="stylesheet" type="text/css" href="estilo.css">
+</head>
+<body>
+    <header>
+        <div class="topo">
+            <img src="imagens/logo.png" alt="Logo da Escola" class="logo">
+            <h1>Centro Educacional Letras & Cores</h1>
+        </div>
+        <img src="imagens/fundo.jpg" alt="Imagem de Fundo" class="fundo">
+    </header>
+    <hr />
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="diario.html">Diário de Classe</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="#" onclick="logout()">Sair</a>
+    </nav>
+    <hr />
+
+    <section id="agenda-container">
+        <div class="agenda-header">
+            <h2>Agenda de Atividades</h2>
+            <div class="agenda-info">
+                <span id="turmaAgenda">Turma: 1º Ano</span>
+                <button class="btn-novo" onclick="abrirFormularioAtividade()">+ Nova Atividade</button>
+            </div>
+        </div>
+
+        <!-- Calendário Simples -->
+        <div class="calendario-container">
+            <div class="calendario-nav">
+                <button onclick="mesAnterior()">←</button>
+                <h3 id="mesAnoAtual">Abril 2026</h3>
+                <button onclick="proximoMes()">→</button>
+            </div>
+            <table class="calendario">
+                <thead>
+                    <tr>
+                        <th>Dom</th>
+                        <th>Seg</th>
+                        <th>Ter</th>
+                        <th>Qua</th>
+                        <th>Qui</th>
+                        <th>Sex</th>
+                        <th>Sab</th>
+                    </tr>
+                </thead>
+                <tbody id="diasCalendario">
+                    <!-- Será preenchido por JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Atividades do Dia -->
+        <div class="atividades-dia">
+            <h3>Atividades de <span id="dataSelecionadaAgenda">Hoje</span></h3>
+            <div id="listaAtividades" class="lista-atividades">
+                <div class="atividade-item">
+                    <div class="atividade-header">
+                        <h4>Aula de Português - Leitura</h4>
+                        <span class="hora">08:00 - 09:00</span>
+                    </div>
+                    <p class="atividade-desc">Leitura e interpretação de texto. Atividade em dupla.</p>
+                    <button class="btn-editar" onclick="editarAtividade(this)">Editar</button>
+                    <button class="btn-deletar" onclick="deletarAtividade(this)">Deletar</button>
+                </div>
+
+                <div class="atividade-item">
+                    <div class="atividade-header">
+                        <h4>Atividade Prática - Matemática</h4>
+                        <span class="hora">09:30 - 10:30</span>
+                    </div>
+                    <p class="atividade-desc">Exercícios de adição e subtração com números até 50.</p>
+                    <button class="btn-editar" onclick="editarAtividade(this)">Editar</button>
+                    <button class="btn-deletar" onclick="deletarAtividade(this)">Deletar</button>
+                </div>
+
+                <div class="atividade-item">
+                    <div class="atividade-header">
+                        <h4>Educação Física - Jogos Recreativos</h4>
+                        <span class="hora">14:00 - 14:45</span>
+                    </div>
+                    <p class="atividade-desc">Jogos que desenvolvem coordenação motora e trabalho em equipe.</p>
+                    <button class="btn-editar" onclick="editarAtividade(this)">Editar</button>
+                    <button class="btn-deletar" onclick="deletarAtividade(this)">Deletar</button>
+                </div>
+            </div>
+
+            <p id="mensagemVazia" class="mensagem-vazia" style="display: none;">Nenhuma atividade registrada para este dia.</p>
+        </div>
+
+        <!-- Formulário de Nova Atividade -->
+        <div id="formularioAtividade" class="formulario-modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Nova Atividade</h3>
+                <span class="fechar" onclick="fecharFormularioAtividade()">&times;</span>
+                
+                <form id="formAtividade">
+                    <div class="form-group">
+                        <label for="nomeAtividade">Nome da Atividade:</label>
+                        <input type="text" id="nomeAtividade" required placeholder="Ex: Aula de Português">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataAtividade">Data:</label>
+                        <input type="date" id="dataAtividade" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="horaInicio">Hora Início:</label>
+                            <input type="time" id="horaInicio" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="horaFim">Hora Fim:</label>
+                            <input type="time" id="horaFim" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descricaoAtividade">Descrição:</label>
+                        <textarea id="descricaoAtividade" rows="4" placeholder="Descreva a atividade"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipoAtividade">Tipo de Atividade:</label>
+                        <select id="tipoAtividade">
+                            <option value="aula">Aula</option>
+                            <option value="atividade">Atividade Prática</option>
+                            <option value="avaliacao">Avaliação</option>
+                            <option value="evento">Evento Especial</option>
+                            <option value="outra">Outra</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-salvar">Salvar Atividade</button>
+                    <button type="button" class="btn-cancelar" onclick="fecharFormularioAtividade()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Centro Educacional Letras & Cores. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let serieAtual = null;
+        let serieName = null;
+        let dataAtualCalendario = new Date(2026, 3, 16); // 16 de Abril de 2026
+        let dataSelecionada = new Date(2026, 3, 16);
+        const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                       'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+        // Helper para fazer requisições com token JWT
+        async function fetchComToken(url, options = {}) {
+            const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+            const token = userData.token || localStorage.getItem('access_token');
+            const headers = options.headers || {};
+            headers['Content-Type'] = 'application/json';
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            return fetch(url, { ...options, headers });
+        }
+
+        // Inicializar data atual no formulário
+        document.getElementById('dataAtividade').valueAsDate = new Date();
+
+        // Verificar autenticação e carregar turma
+        function inicializarAgenda() {
+            const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+            const token = userData.token || localStorage.getItem('access_token');
+
+            // Verificar se é professor (tem professorId no userData)
+            if (!token || !userData.professorId) {
+                alert('Acesso negado! Apenas professores podem acessar.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Obter serie_id da URL ou localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            serieAtual = urlParams.get('turma') || userData.serieId || localStorage.getItem('turmaAtual');
+            
+            if (!serieAtual) {
+                alert('Nenhuma turma selecionada!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Validar se o professor pode acessar essa turma
+            const professorId = userData.professorId || sessionStorage.getItem('professorId');
+            validarAcessoProfessorTurma(professorId, serieAtual);
+
+            // Carregar nome da série
+            carregarNomeSerie(serieAtual);
+            
+            // Renderizar calendário
+            renderizarCalendario();
+        }
+
+        // Validar acesso do professor à turma
+        async function validarAcessoProfessorTurma(professorId, serieId) {
+            try {
+                const response = await fetchComToken(`${API_URL}/validar-acesso-turma`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        professor_id: parseInt(professorId),
+                        serie_id: parseInt(serieId)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.pode_acessar) {
+                    alert('Você não tem permissão para acessar esta turma!');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Erro ao validar acesso:', error);
+                // Continuar mesmo com erro, para não bloquear o app em caso de falha da API
+            }
+        }
+
+        // Carregar nome da série
+        async function carregarNomeSerie(serie_id) {
+            try {
+                const response = await fetchComToken(`${API_URL}/series`);
+                const series = await response.json();
+                const serie = series.find(s => s.id === parseInt(serie_id));
+                
+                if (serie) {
+                    serieName = serie.nome;
+                    document.getElementById('turmaAgenda').textContent = `Turma: ${serie.nome} (${serie.ano})`;
+                } else {
+                    document.getElementById('turmaAgenda').textContent = `Turma: ID ${serie_id}`;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar nome da série:', error);
+                document.getElementById('turmaAgenda').textContent = `Turma: ID ${serie_id}`;
+            }
+        }
+
+        // Renderizar calendário
+        function renderizarCalendario() {
+            const ano = dataAtualCalendario.getFullYear();
+            const mes = dataAtualCalendario.getMonth();
+            
+            document.getElementById('mesAnoAtual').textContent = meses[mes] + ' ' + ano;
+            
+            // Primeiro dia do mês
+            const primeiroDia = new Date(ano, mes, 1);
+            const ultimoDia = new Date(ano, mes + 1, 0);
+            const diasMes = ultimoDia.getDate();
+            const primeiroWday = primeiroDia.getDay();
+            
+            let html = '<tr>';
+            
+            // Espaços em branco antes do primeiro dia
+            for (let i = 0; i < primeiroWday; i++) {
+                html += '<td class="vazia"></td>';
+            }
+            
+            // Dias do mês
+            for (let dia = 1; dia <= diasMes; dia++) {
+                const diaData = new Date(ano, mes, dia);
+                const ehHoje = diaData.toDateString() === new Date().toDateString();
+                const ehSelecionada = diaData.toDateString() === dataSelecionada.toDateString();
+                
+                html += `<td class="dia ${ehHoje ? 'hoje' : ''} ${ehSelecionada ? 'selecionada' : ''}" onclick="selecionarData(${dia})">
+                    ${dia}
+                </td>`;
+                
+                if ((primeiroWday + dia) % 7 === 0 && dia < diasMes) {
+                    html += '</tr><tr>';
+                }
+            }
+            
+            html += '</tr>';
+            document.getElementById('diasCalendario').innerHTML = html;
+        }
+
+        function mesAnterior() {
+            dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() - 1);
+            renderizarCalendario();
+        }
+
+        function proximoMes() {
+            dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + 1);
+            renderizarCalendario();
+        }
+
+        function selecionarData(dia) {
+            dataSelecionada = new Date(dataAtualCalendario.getFullYear(), dataAtualCalendario.getMonth(), dia);
+            const nomesAbreviados = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
+            const diaSemana = nomesAbreviados[dataSelecionada.getDay()];
+            document.getElementById('dataSelecionadaAgenda').textContent = `${diaSemana}, ${dia} de ${meses[dataAtualCalendario.getMonth()]}`;
+            renderizarCalendario();
+        }
+
+        function abrirFormularioAtividade() {
+            document.getElementById('formularioAtividade').style.display = 'block';
+            document.getElementById('dataAtividade').valueAsDate = dataSelecionada;
+        }
+
+        function fecharFormularioAtividade() {
+            document.getElementById('formularioAtividade').style.display = 'none';
+        }
+
+        document.getElementById('formAtividade').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nomeAtividade').value;
+            const inicio = document.getElementById('horaInicio').value;
+            const fim = document.getElementById('horaFim').value;
+            const desc = document.getElementById('descricaoAtividade').value;
+            
+            const novaAtividade = document.createElement('div');
+            novaAtividade.className = 'atividade-item';
+            novaAtividade.innerHTML = `
+                <div class="atividade-header">
+                    <h4>${nome}</h4>
+                    <span class="hora">${inicio} - ${fim}</span>
+                </div>
+                <p class="atividade-desc">${desc}</p>
+                <button class="btn-editar" onclick="editarAtividade(this)">Editar</button>
+                <button class="btn-deletar" onclick="deletarAtividade(this)">Deletar</button>
+            `;
+            
+            document.getElementById('listaAtividades').appendChild(novaAtividade);
+            alert('Atividade adicionada com sucesso!');
+            fecharFormularioAtividade();
+            this.reset();
+        });
+
+        function editarAtividade(btn) {
+            alert('Função de edição será implementada!');
+        }
+
+        function deletarAtividade(btn) {
+            if (confirm('Tem certeza que deseja deletar esta atividade?')) {
+                btn.parentElement.remove();
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // Inicializar
+        inicializarAgenda();
+    </script>
+</body>
+</html>

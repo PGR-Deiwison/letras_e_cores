@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diário de Classe - Letras & Cores</title>
+    <link rel="icon" type="image/png" href="imagens/logo.png">
+    <link rel="stylesheet" type="text/css" href="estilo.css">
+</head>
+<body>
+    <header>
+        <div class="topo">
+            <img src="imagens/logo.png" alt="Logo da Escola" class="logo">
+            <h1>Centro Educacional Letras & Cores</h1>
+        </div>
+        <img src="imagens/fundo.jpg" alt="Imagem de Fundo" class="fundo">
+    </header>
+    <hr />
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="diario.html">Diário de Classe</a>
+        <a href="agenda.html">Agenda</a>
+        <a href="#" onclick="logout()">Sair</a>
+    </nav>
+    <hr />
+
+    <section id="diario-container">
+        <div class="diario-header">
+            <h2>📋 Diário de Classe</h2>
+            <div class="info-professor">
+                <span id="professorInfo" style="font-weight: bold;">Professor: Carregando...</span>
+                <span id="turmaInfo" style="font-weight: bold; margin-left: 20px; color: #0066cc;">Turma: Carregando...</span>
+            </div>
+        </div>
+
+        <div class="tabs-diario">
+            <button class="tab-btn active" onclick="mostrarAba('chamada')">Lista de Chamada</button>
+            <button class="tab-btn" onclick="mostrarAba('faltas')">Relatório de Faltas</button>
+            <button class="tab-btn" onclick="mostrarAba('notas')">Notas por Bimestre</button>
+        </div>
+
+        <!-- ABA: LISTA DE CHAMADA -->
+        <div id="chamada" class="tab-content active">
+            <div class="filtro-mes">
+                <label for="mesSelecionado">Selecione o Mês:</label>
+                <select id="mesSelecionado" onchange="carregarChamadaMes()">
+                    <option value="">-- Escolha um mês --</option>
+                    <option value="01">Janeiro</option>
+                    <option value="02">Fevereiro</option>
+                    <option value="03">Março</option>
+                    <option value="04">Abril</option>
+                    <option value="05">Maio</option>
+                    <option value="06">Junho</option>
+                    <option value="07">Julho</option>
+                    <option value="08">Agosto</option>
+                    <option value="09">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                </select>
+            </div>
+            <div id="containerChamada" style="display: none;">
+                <h4 id="mesChamada"></h4>
+                
+                <!-- LEGENDA DE CORES -->
+                <div class="legenda-frequencia">
+                    <h5>📋 Legenda:</h5>
+                    <div class="legenda-items">
+                        <div class="legenda-item">
+                            <div class="legenda-cor" style="background-color: #d4edda; border: 2px solid #28a745;"></div>
+                            <span><strong>P</strong> = Presente</span>
+                        </div>
+                        <div class="legenda-item">
+                            <div class="legenda-cor" style="background-color: #f8d7da; border: 2px solid #dc3545;"></div>
+                            <span><strong>A</strong> = Ausente</span>
+                        </div>
+                        <div class="legenda-item">
+                            <div class="legenda-cor" style="background-color: #fff3cd; border: 2px solid #ffc107;"></div>
+                            <span><strong>F</strong> = Feriado</span>
+                        </div>
+                        <div class="legenda-item">
+                            <div class="legenda-cor" style="background-color: #e6d7f0; border: 2px solid #9b59b6;"></div>
+                            <span><strong>X</strong> = Sem Aula</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <table class="tabela-chamada-mensal" id="tabelaChamada">
+                    <thead id="headerChamada"></thead>
+                    <tbody id="bodyChamada"></tbody>
+                </table>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button onclick="salvarFrequencia()" class="btn-salvar">Salvar Frequência</button>
+                </div>
+            </div>
+            <div id="msgChamada" class="msg-vazio">Selecione um mês para visualizar a frequência</div>
+        </div>
+
+        <!-- ABA: RELATÓRIO DE FALTAS -->
+        <div id="faltas" class="tab-content">
+            <h3>Relatório de Faltas - Ano Letivo</h3>
+            <table class="tabela-faltas">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>Total Faltas</th>
+                        <th>Jan</th>
+                        <th>Fev</th>
+                        <th>Mar</th>
+                        <th>Abr</th>
+                        <th>Mai</th>
+                        <th>Jun</th>
+                        <th>Jul</th>
+                        <th>Ago</th>
+                        <th>Set</th>
+                        <th>Out</th>
+                        <th>Nov</th>
+                        <th>Dez</th>
+                        <th>Percentual de Faltas (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyFaltas">
+                    <tr><td colspan="15" class="msg-vazio">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ABA: NOTAS -->
+        <div id="notas" class="tab-content">
+            <h3>Notas por Disciplina e Bimestre</h3>
+            
+            <!-- Seletores de Bimestre e Disciplina -->
+            <div style="margin-bottom: 15px; display: flex; gap: 20px; align-items: center;">
+                <div>
+                    <label for="bimestreSelecionado" style="font-weight: bold;">Selecione o Bimestre:</label>
+                    <select id="bimestreSelecionado" onchange="carregarDisciplinas()" style="padding: 8px; margin-left: 10px; border-radius: 4px;">
+                        <option value="">-- Escolha um bimestre --</option>
+                        <option value="1">1º Bimestre</option>
+                        <option value="2">2º Bimestre</option>
+                        <option value="3">3º Bimestre</option>
+                        <option value="4">4º Bimestre</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="disciplinaSelecionada" style="font-weight: bold;">Selecione a Disciplina:</label>
+                    <select id="disciplinaSelecionada" onchange="carregarBimestre()" style="padding: 8px; margin-left: 10px; border-radius: 4px;">
+                        <option value="">-- Escolha uma disciplina --</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Container para as tabelas por disciplina -->
+            <div id="containerTabelas"></div>
+            
+            <button id="btnSalvarNotas" onclick="salvarNotas()" style="display: none; margin-top: 10px; padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Salvar Notas</button>
+            
+            <hr style="margin: 20px 0; border: 1px solid #ddd;">
+            
+            <!-- Tabela de visualização geral -->
+            <h4>Resumo Geral</h4>
+            <table class="tabela-notas">
+                <thead>
+                    <tr>
+                        <th>Aluno</th>
+                        <th>1º Bimestre</th>
+                        <th>2º Bimestre</th>
+                        <th>3º Bimestre</th>
+                        <th>4º Bimestre</th>
+                        <th>Média Geral</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyNotas">
+                    <tr><td colspan="6" class="msg-vazio">Carregando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Centro Educacional Letras & Cores. Todos os direitos reservados.</p>
+    </footer>
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let serieAtual = null;
+        let serieName = null;
+        
+        // Função helper para fazer fetch com token JWT
+        async function fetchComToken(url, options = {}) {
+            const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+            const token = userData.token || localStorage.getItem('access_token');
+            const headers = options.headers || {};
+            headers['Content-Type'] = 'application/json';
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            return fetch(url, { ...options, headers });
+        }
+
+        // Verificar autenticação
+        function verificarAutenticacao() {
+            const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+            const token = userData.token || localStorage.getItem('access_token');
+
+            if (!token) {
+                alert('Acesso negado! Sessão expirada.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Obter serie_id da URL ou userData
+            const urlParams = new URLSearchParams(window.location.search);
+            serieAtual = urlParams.get('turma') || userData.serieId;
+            
+            if (!serieAtual) {
+                alert('Nenhuma turma selecionada!');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Validar se o professor pode acessar essa turma
+            const professorId = userData.professorId;
+            validarAcessoProfessorTurma(professorId, serieAtual);
+
+            // Carregar nome da série
+            carregarNomeSerie(serieAtual);
+            
+            // Exibir informações do professor
+            const professorNome = userData.professorNome || 'N/A';
+            document.getElementById('professorInfo').textContent = `👨‍🏫 Professor: ${professorNome}`;
+            
+            carregarAlunos();
+            carregarDadosFaltas();
+            carregarDadosNotas();
+        }
+
+        // Validar acesso do professor à turma
+        async function validarAcessoProfessorTurma(professorId, serieId) {
+            try {
+                const response = await fetchComToken(`${API_URL}/validar-acesso-turma`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        professor_id: parseInt(professorId),
+                        serie_id: parseInt(serieId)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.pode_acessar) {
+                    alert('Você não tem permissão para acessar esta turma!');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Erro ao validar acesso:', error);
+                // Continuar mesmo com erro, para não bloquear o app em caso de falha da API
+            }
+        }
+
+        // Carregar nome da série
+        async function carregarNomeSerie(serie_id) {
+            try {
+                const response = await fetchComToken(`${API_URL}/series`);
+                const series = await response.json();
+                const serie = series.find(s => s.id === parseInt(serie_id));
+                
+                if (serie) {
+                    serieName = serie.nome;
+                    document.getElementById('turmaInfo').textContent = `🏫 Turma: ${serie.nome} (${serie.ano})`;
+                } else {
+                    document.getElementById('turmaInfo').textContent = `Turma: ID ${serie_id}`;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar nome da série:', error);
+                document.getElementById('turmaInfo').textContent = `Turma: ID ${serie_id}`;
+            }
+        }
+
+        function logout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Mudar de aba
+        function mostrarAba(aba) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(aba).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Recarregar dados quando mudar de aba
+            if (aba === 'faltas') {
+                carregarDadosFaltas();
+            }
+        }
+
+        // Variáveis globais para armazenar alunos e mês selecionado
+        let alunosData = [];
+        let mesAtual = null;
+
+        // Carregar alunos da API
+        async function carregarAlunos() {
+            try {
+                const response = await fetchComToken(`${API_URL}/alunos?serie_id=${serieAtual}`);
+                if (!response.ok) throw new Error('Erro ao carregar alunos');
+                
+                alunosData = await response.json();
+                
+                if (alunosData.length === 0) {
+                    document.getElementById('msgChamada').textContent = 'Nenhum aluno cadastrado nesta turma.';
+                } else {
+                    document.getElementById('msgChamada').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('msgChamada').textContent = 'Erro ao carregar alunos. Verifique a conexão com o servidor.';
+            }
+        }
+
+        // Carregar chamada do mês
+        async function carregarChamadaMes() {
+            const mes = document.getElementById('mesSelecionado').value;
+            mesAtual = mes; // Armazenar mês selecionado
+            
+            if (!mes) {
+                document.getElementById('containerChamada').style.display = 'none';
+                document.getElementById('msgChamada').style.display = 'block';
+                return;
+            }
+
+            const meses = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                          'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+            
+            document.getElementById('mesChamada').textContent = `Chamada - ${meses[parseInt(mes)]} de 2026`;
+            
+            // Montar tabela com dias úteis do mês
+            const ano = new Date().getFullYear();
+            const diasMes = new Date(ano, mes, 0).getDate();
+            
+            let headerHTML = '<tr><th>Aluno</th>';
+            const diasUteis = [];
+            
+            for (let dia = 1; dia <= diasMes; dia++) {
+                const data = new Date(ano, mes - 1, dia);
+                const diaSemana = data.getDay();
+                
+                // Apenas dias úteis (seg-sex: 1-5)
+                if (diaSemana >= 1 && diaSemana <= 5) {
+                    headerHTML += `<th>${dia}</th>`;
+                    diasUteis.push(dia);
+                }
+            }
+            headerHTML += '</tr>';
+            document.getElementById('headerChamada').innerHTML = headerHTML;
+            
+            // Montar corpo da tabela com alunos
+            let bodyHTML = '';
+            alunosData.forEach(aluno => {
+                bodyHTML += `<tr>
+                    <td><strong>${aluno.nome}</strong></td>`;
+                
+                diasUteis.forEach(dia => {
+                    bodyHTML += `<td style="text-align: center;">
+                        <input type="text" 
+                               id="freq_${aluno.id}_${dia}" 
+                               maxlength="1" 
+                               class="freq-input"
+                               style="width: 50px; text-align: center; text-transform: uppercase; font-weight: bold; padding: 8px;"
+                               placeholder="-"
+                               onkeydown="validarEntradaFrequencia(event, this)"
+                               onblur="limparFrequencia(this)">
+                    </td>`;
+                });
+                
+                bodyHTML += '</tr>';
+            });
+            document.getElementById('bodyChamada').innerHTML = bodyHTML;
+            
+            document.getElementById('containerChamada').style.display = 'block';
+            document.getElementById('msgChamada').style.display = 'none';
+            
+            // Carregar frequências salvas
+            await carregarFrequenciaSalva(mes);
+        }
+
+        // Carregar frequências salvas do servidor
+        async function carregarFrequenciaSalva(mes) {
+            try {
+                const response = await fetchComToken(`${API_URL}/frequencia?serie_id=${serieAtual}`);
+                const frequencias = await response.json();
+                
+                // Converter para mapa para acesso rápido
+                const freqMap = {};
+                frequencias.forEach(f => {
+                    const [ano, mesData, dia] = f.data.split('-');
+                    if (parseInt(mesData) === parseInt(mes)) {
+                        const chave = `freq_${f.aluno_id}_${parseInt(dia)}`;
+                        freqMap[chave] = f;
+                    }
+                });
+                
+                // Preencher inputs com dados salvos
+                Object.keys(freqMap).forEach(chave => {
+                    const input = document.getElementById(chave);
+                    if (input) {
+                        const freq = freqMap[chave];
+                        let valor = '';
+                        
+                        if (freq.presente) {
+                            valor = 'P';
+                        } else if (freq.observacao === 'FERIADO') {
+                            valor = 'F';
+                        } else if (freq.observacao === 'SEM_AULA') {
+                            valor = 'X';
+                        } else {
+                            valor = 'A';
+                        }
+                        
+                        input.value = valor;
+                        limparFrequencia(input); // Aplicar cores
+                    }
+                });
+            } catch (error) {
+                console.error('Erro ao carregar frequências salvas:', error);
+            }
+        }
+
+        // Validar entrada de frequência - apenas A, P, F ou X
+        function validarEntradaFrequencia(event, input) {
+            const char = event.key.toUpperCase();
+            
+            // Permitir apenas A, P, F, X, Backspace, Delete, Tab, Enter
+            if (!/^[APFX]$/.test(char) && !['Backspace', 'Delete', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                event.preventDefault();
+                input.style.borderColor = '#ff6b6b';
+                input.style.borderWidth = '2px';
+                return false;
+            }
+            
+            input.style.borderColor = '';
+            input.style.borderWidth = '';
+            return true;
+        }
+
+        // Limpar/validar frequência ao sair do campo
+        function limparFrequencia(input) {
+            let valor = input.value.trim().toUpperCase();
+            
+            if (valor === '') {
+                input.value = '';
+                input.style.backgroundColor = '';
+                input.style.borderColor = '';
+                input.style.borderWidth = '';
+            } else if (valor === 'P') {
+                input.value = 'P';
+                input.style.backgroundColor = '#d4edda'; // Verde suave - Presente
+                input.style.borderColor = '#28a745'; // Verde mais escuro
+                input.style.borderWidth = '2px';
+            } else if (valor === 'A') {
+                input.value = 'A';
+                input.style.backgroundColor = '#f8d7da'; // Vermelho suave - Ausente
+                input.style.borderColor = '#dc3545'; // Vermelho mais escuro
+                input.style.borderWidth = '2px';
+            } else if (valor === 'F') {
+                input.value = 'F';
+                input.style.backgroundColor = '#fff3cd'; // Amarelo suave - Feriado
+                input.style.borderColor = '#ffc107'; // Amarelo mais escuro
+                input.style.borderWidth = '2px';
+            } else if (valor === 'X') {
+                input.value = 'X';
+                input.style.backgroundColor = '#e6d7f0'; // Roxo suave - Sem Aula
+                input.style.borderColor = '#9b59b6'; // Roxo mais escuro
+                input.style.borderWidth = '2px';
+            } else {
+                // Inválido
+                input.value = '';
+                input.style.backgroundColor = '#f8d7da';
+                input.style.borderColor = '#dc3545';
+                input.style.borderWidth = '2px';
+                alert('Apenas "P" (Presente), "A" (Ausente), "F" (Feriado) ou "X" (Sem Aula) são aceitos.');
+            }
+        }
+
+        // Salvar frequência para o mês selecionado
+        async function salvarFrequencia() {
+            const mes = document.getElementById('mesSelecionado').value;
+            
+            if (!mes) {
+                alert('Selecione um mês primeiro');
+                return;
+            }
+
+            // Recolher todos os inputs com dados
+            const frequencias = [];
+            const inputs = document.querySelectorAll('.freq-input');
+            let temDados = false;
+
+            inputs.forEach(input => {
+                const valor = input.value.trim().toUpperCase();
+                
+                if (['P', 'A', 'F', 'X'].includes(valor)) {
+                    temDados = true;
+                    // Extrair aluno_id e dia do id do input (formato: freq_${aluno_id}_${dia})
+                    const parts = input.id.split('_');
+                    const aluno_id = parseInt(parts[1]);
+                    const dia = parseInt(parts[2]);
+                    
+                    const ano = new Date().getFullYear();
+                    const data = `${ano}-${mes}-${String(dia).padStart(2, '0')}`;
+                    
+                    // Mapear valores
+                    let presente, observacao = '';
+                    if (valor === 'P') {
+                        presente = true;
+                        observacao = '';
+                    } else if (valor === 'A') {
+                        presente = false;
+                        observacao = '';
+                    } else if (valor === 'F') {
+                        presente = false;
+                        observacao = 'FERIADO';
+                    } else if (valor === 'X') {
+                        presente = false;
+                        observacao = 'SEM_AULA';
+                    }
+                    
+                    frequencias.push({
+                        aluno_id,
+                        data,
+                        presente,
+                        observacao
+                    });
+                }
+            });
+
+            if (!temDados) {
+                alert('Nenhuma frequência preenchida. Por favor, preencha pelo menos um campo com "P", "A", "F" ou "X".');
+                return;
+            }
+
+            try {
+                // Salvar cada frequência via API
+                for (const freq of frequencias) {
+                    const response = await fetchComToken(`${API_URL}/frequencia`, {
+                        method: 'POST',
+                        body: JSON.stringify(freq)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erro ao salvar frequência do aluno ${freq.aluno_id} em ${freq.data}`);
+                    }
+                }
+
+                alert('✅ Frequências salvas com sucesso!');
+                // Dados mantêm visíveis após salvar - não limpar os campos
+
+            } catch (erro) {
+                console.error('Erro:', erro);
+                alert(`Erro ao salvar frequência: ${erro.message}`);
+            }
+        }
+
+        // Carregar faltas
+        async function carregarDadosFaltas() {
+            try {
+                const response = await fetchComToken(`${API_URL}/frequencia?serie_id=${serieAtual}`);
+                if (!response.ok) throw new Error('Erro ao carregar frequência');
+                
+                const frequencias = await response.json();
+                
+                // Agrupar faltas por aluno e mês
+                const faltasPorAluno = {};
+                alunosData.forEach(aluno => {
+                    faltasPorAluno[aluno.id] = {
+                        total: 0,
+                        porMes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] // Jan a Dez (índices 0-11)
+                    };
+                });
+                
+                // Contar faltas
+                frequencias.forEach(freq => {
+                    if (faltasPorAluno[freq.aluno_id]) {
+                        // Contar apenas "A" (Ausente), excluindo "F" (Feriado) e "X" (Sem Aula)
+                        if (freq.presente === 0 && freq.observacao !== 'FERIADO' && freq.observacao !== 'SEM_AULA') {
+                            const [ano, mes, dia] = freq.data.split('-');
+                            const mesIndex = parseInt(mes) - 1; // Converter para índice 0-11
+                            
+                            faltasPorAluno[freq.aluno_id].total++;
+                            faltasPorAluno[freq.aluno_id].porMes[mesIndex]++;
+                        }
+                    }
+                });
+                
+                // Montar tabela
+                let html = '';
+                const diasAulaAnual = 200; // Total de dias de aula por ano
+                
+                Object.keys(faltasPorAluno).forEach(alunoId => {
+                    const aluno = alunosData.find(a => a.id == alunoId);
+                    const faltas = faltasPorAluno[alunoId];
+                    const percentualFaltas = ((faltas.total / diasAulaAnual) * 100).toFixed(2);
+                    
+                    let row = `<tr>
+                        <td>${aluno ? aluno.nome : 'Aluno ' + alunoId}</td>
+                        <td style="font-weight: bold; color: #dc3545;">${faltas.total}</td>`;
+                    
+                    // Adicionar faltas por mês
+                    for (let i = 0; i < 12; i++) {
+                        const faltaMes = faltas.porMes[i];
+                        const estilo = faltaMes > 0 ? 'background: #ffe0e0; font-weight: bold;' : '';
+                        row += `<td style="${estilo}">${faltaMes}</td>`;
+                    }
+                    
+                    // Adicionar percentual
+                    row += `<td style="background: #fff3cd; font-weight: bold;">${percentualFaltas}%</td>
+                    </tr>`;
+                    
+                    html += row;
+                });
+                
+                document.getElementById('bodyFaltas').innerHTML = html || '<tr><td colspan="15">Nenhum dado de frequência</td></tr>';
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('bodyFaltas').innerHTML = '<tr><td colspan="15">Erro ao carregar dados</td></tr>';
+            }
+        }
+
+        // Carregar notas
+        async function carregarDadosNotas() {
+            try {
+                const response = await fetchComToken(`${API_URL}/notas?serie_id=${serieAtual}`);
+                if (!response.ok) throw new Error('Erro ao carregar notas');
+                
+                const notas = await response.json();
+                
+                // Agrupar notas por aluno e bimestre (usar MB se disponível, senão usar nota)
+                const notasPorAluno = {};
+                alunosData.forEach(aluno => {
+                    notasPorAluno[aluno.id] = { 1: null, 2: null, 3: null, 4: null };
+                });
+                
+                notas.forEach(nota => {
+                    if (notasPorAluno[nota.aluno_id] && nota.bimestre >= 1 && nota.bimestre <= 4) {
+                        // Usar MB se disponível (novo sistema), senão usar nota (compatibilidade)
+                        notasPorAluno[nota.aluno_id][nota.bimestre] = nota.mb !== null ? nota.mb : nota.nota;
+                    }
+                });
+                
+                // Montar tabela
+                let html = '';
+                Object.keys(notasPorAluno).forEach(alunoId => {
+                    const aluno = alunosData.find(a => a.id == alunoId);
+                    const notasAluno = notasPorAluno[alunoId];
+                    
+                    const notas_array = [notasAluno[1], notasAluno[2], notasAluno[3], notasAluno[4]];
+                    const notasValidas = notas_array.filter(n => n !== null && n !== undefined);
+                    const media = notasValidas.length > 0 ? (notasValidas.reduce((a, b) => a + b, 0) / notasValidas.length).toFixed(2) : '-';
+                    
+                    html += `<tr>
+                        <td>${aluno ? aluno.nome : 'Aluno ' + alunoId}</td>
+                        <td style="text-align: center; font-weight: ${notasAluno[1] !== null && notasAluno[1] < 6 ? 'bold; color: #dc3545' : 'normal'}">${notasAluno[1] !== null ? notasAluno[1].toFixed(1) : '-'}</td>
+                        <td style="text-align: center; font-weight: ${notasAluno[2] !== null && notasAluno[2] < 6 ? 'bold; color: #dc3545' : 'normal'}">${notasAluno[2] !== null ? notasAluno[2].toFixed(1) : '-'}</td>
+                        <td style="text-align: center; font-weight: ${notasAluno[3] !== null && notasAluno[3] < 6 ? 'bold; color: #dc3545' : 'normal'}">${notasAluno[3] !== null ? notasAluno[3].toFixed(1) : '-'}</td>
+                        <td style="text-align: center; font-weight: ${notasAluno[4] !== null && notasAluno[4] < 6 ? 'bold; color: #dc3545' : 'normal'}">${notasAluno[4] !== null ? notasAluno[4].toFixed(1) : '-'}</td>
+                        <td><strong style="color: ${media !== '-' && parseFloat(media) < 6 ? '#dc3545' : '#28a745'}">${media}</strong></td>
+                    </tr>`;
+                });
+                
+                document.getElementById('bodyNotas').innerHTML = html || '<tr><td colspan="6">Nenhum dado de notas</td></tr>';
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('bodyNotas').innerHTML = '<tr><td colspan="6">Erro ao carregar dados</td></tr>';
+            }
+        }
+
+        // Carregar disciplinas do professor para uma turma
+        async function carregarDisciplinas() {
+            const bimestre = document.getElementById('bimestreSelecionado').value;
+            
+            if (!bimestre || !serieAtual) {
+                document.getElementById('disciplinaSelecionada').innerHTML = '<option value="">-- Escolha uma disciplina --</option>';
+                document.getElementById('containerTabelas').innerHTML = '';
+                document.getElementById('btnSalvarNotas').style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/disciplinas-turma/${serieAtual}`);
+                if (!response.ok) throw new Error('Erro ao carregar disciplinas');
+                
+                const disciplinas = await response.json();
+                
+                let html = '<option value="">-- Escolha uma disciplina --</option>';
+                disciplinas.forEach(disc => {
+                    html += `<option value="${disc.id}">${disc.nome}</option>`;
+                });
+                
+                document.getElementById('disciplinaSelecionada').innerHTML = html;
+                
+                // Se houver apenas uma disciplina, selecioná-la automaticamente
+                if (disciplinas.length === 1) {
+                    document.getElementById('disciplinaSelecionada').value = disciplinas[0].id;
+                    await carregarBimestre();
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao carregar disciplinas. Verifique a conexão.');
+            }
+        }
+
+        // Carregar notas para edição de um bimestre e disciplina específicos
+        async function carregarBimestre() {
+            const bimestre = document.getElementById('bimestreSelecionado').value;
+            const disciplinaId = document.getElementById('disciplinaSelecionada').value;
+            const disciplinaNome = document.getElementById('disciplinaSelecionada').options[document.getElementById('disciplinaSelecionada').selectedIndex].text;
+            
+            if (!bimestre || !disciplinaId) {
+                document.getElementById('containerTabelas').innerHTML = '';
+                document.getElementById('btnSalvarNotas').style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetchComToken(`${API_URL}/notas?serie_id=${serieAtual}`);
+                if (!response.ok) throw new Error('Erro ao carregar notas');
+                
+                const todasAsNotas = await response.json();
+                
+                // Filtrar notas por disciplina e bimestre
+                const notasFiltradas = todasAsNotas.filter(n => {
+                    // Comparar nome da disciplina ou usar ID se disponível
+                    return (n.disciplina && n.disciplina.toLowerCase() === disciplinaNome.toLowerCase()) &&
+                           parseInt(n.bimestre) === parseInt(bimestre);
+                });
+                
+                // Criar mapa de notas por aluno
+                const notasPorAluno = {};
+                alunosData.forEach(aluno => {
+                    notasPorAluno[aluno.id] = { avm: null, avb: null, rec: null, mb: null };
+                });
+                
+                notasFiltradas.forEach(nota => {
+                    notasPorAluno[nota.aluno_id] = {
+                        avm: nota.avm,
+                        avb: nota.avb,
+                        rec: nota.rec,
+                        mb: nota.mb
+                    };
+                });
+                
+                // Montar tabela de edição com 3 inputs + MB read-only
+                let html = `<div style="margin-top: 20px;">
+                    <h4>Notas - ${disciplinaNome}</h4>
+                    <table class="tabela-notas" id="tabelaBimestreSelecionado">
+                        <thead>
+                            <tr>
+                                <th>Aluno</th>
+                                <th>AVM (Aval. Mensal)</th>
+                                <th>AVB (Aval. Bimestral)</th>
+                                <th>REC (Recuperação)</th>
+                                <th>MB (Média Bimestral)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyNotasEdicao">`;
+                
+                alunosData.forEach(aluno => {
+                    const notas_aluno = notasPorAluno[aluno.id];
+                    const avm_val = notas_aluno.avm !== null ? notas_aluno.avm : '';
+                    const avb_val = notas_aluno.avb !== null ? notas_aluno.avb : '';
+                    const rec_val = notas_aluno.rec !== null ? notas_aluno.rec : '';
+                    const mb_val = notas_aluno.mb !== null ? notas_aluno.mb.toFixed(1) : '-';
+                    
+                    html += `<tr data-aluno-id="${aluno.id}" data-disciplina="${disciplinaNome}">
+                        <td><strong>${aluno.nome}</strong></td>
+                        <td style="text-align: center;">
+                            <input type="number" 
+                                   class="avm-input"
+                                   value="${avm_val}"
+                                   min="0" 
+                                   max="10" 
+                                   step="0.5"
+                                   style="width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center;"
+                                   onchange="atualizarMB(this)"
+                                   placeholder="0-10">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="number" 
+                                   class="avb-input"
+                                   value="${avb_val}"
+                                   min="0" 
+                                   max="10" 
+                                   step="0.5"
+                                   style="width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center;"
+                                   onchange="atualizarMB(this)"
+                                   placeholder="0-10">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="number" 
+                                   class="rec-input"
+                                   value="${rec_val}"
+                                   min="0" 
+                                   max="10" 
+                                   step="0.5"
+                                   style="width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; text-align: center;"
+                                   placeholder="0-10"
+                                   disabled>
+                        </td>
+                        <td style="text-align: center; font-weight: bold;">
+                            <span class="mb-display" style="color: ${notas_aluno.mb !== null && notas_aluno.mb >= 6 ? '#28a745' : '#dc3545'}">${mb_val}</span>
+                        </td>
+                    </tr>`;
+                });
+                
+                html += `</tbody></table></div>`;
+                
+                document.getElementById('containerTabelas').innerHTML = html;
+                document.getElementById('btnSalvarNotas').style.display = 'block';
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao carregar bimestre. Verifique a conexão.');
+            }
+        }
+
+        // Atualizar MB e habilitar REC se necessário
+        function atualizarMB(inputElement) {
+            const row = inputElement.closest('tr');
+            const avm = parseFloat(row.querySelector('.avm-input').value) || 0;
+            const avb = parseFloat(row.querySelector('.avb-input').value) || 0;
+            const recInput = row.querySelector('.rec-input');
+            const mbDisplay = row.querySelector('.mb-display');
+            
+            if (!avm || !avb) {
+                mbDisplay.textContent = '-';
+                recInput.disabled = true;
+                recInput.value = '';
+                return;
+            }
+            
+            let mb = (avm + avb) / 2;
+            mbDisplay.textContent = mb.toFixed(1);
+            
+            // Se MB < 6, habilitar REC
+            if (mb < 6) {
+                recInput.disabled = false;
+                mbDisplay.style.color = '#dc3545'; // Vermelho
+            } else {
+                recInput.disabled = true;
+                recInput.value = '';
+                mbDisplay.style.color = '#28a745'; // Verde
+            }
+        }
+
+        // Salvar notas do bimestre e disciplina selecionados
+        async function salvarNotas() {
+            const bimestre = document.getElementById('bimestreSelecionado').value;
+            const disciplinaNome = document.getElementById('disciplinaSelecionada').options[document.getElementById('disciplinaSelecionada').selectedIndex].text;
+            const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+            const professorId = userData.professorId;
+            
+            if (!bimestre || !disciplinaNome || disciplinaNome === '-- Escolha uma disciplina --' || !professorId) {
+                alert('Erro: bimestre, disciplina ou professor não identificado');
+                return;
+            }
+            
+            try {
+                let notasSalvas = 0;
+                let erros = 0;
+                
+                const rows = document.querySelectorAll('#bodyNotasEdicao tr[data-aluno-id]');
+                
+                for (const row of rows) {
+                    const alunoId = row.getAttribute('data-aluno-id');
+                    const avmInput = row.querySelector('.avm-input');
+                    const avbInput = row.querySelector('.avb-input');
+                    const recInput = row.querySelector('.rec-input');
+                    
+                    const avm = avmInput.value.trim();
+                    const avb = avbInput.value.trim();
+                    const rec = recInput.value.trim();
+                    
+                    // Se nenhum valor foi preenchido, pular
+                    if (avm === '' && avb === '' && rec === '') {
+                        continue;
+                    }
+                    
+                    // Validações
+                    if (avm !== '' && (isNaN(avm) || parseFloat(avm) < 0 || parseFloat(avm) > 10)) {
+                        alert(`AVM inválida: deve estar entre 0 e 10`);
+                        erros++;
+                        continue;
+                    }
+                    if (avb !== '' && (isNaN(avb) || parseFloat(avb) < 0 || parseFloat(avb) > 10)) {
+                        alert(`AVB inválida: deve estar entre 0 e 10`);
+                        erros++;
+                        continue;
+                    }
+                    if (rec !== '' && (isNaN(rec) || parseFloat(rec) < 0 || parseFloat(rec) > 10)) {
+                        alert(`REC inválida: deve estar entre 0 e 10`);
+                        erros++;
+                        continue;
+                    }
+                    
+                    // Converter para float ou null
+                    const avm_val = avm === '' ? null : parseFloat(avm);
+                    const avb_val = avb === '' ? null : parseFloat(avb);
+                    const rec_val = rec === '' ? null : parseFloat(rec);
+                    
+                    const response = await fetchComToken(`${API_URL}/notas`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            aluno_id: parseInt(alunoId),
+                            professor_id: professorId,
+                            disciplina: disciplinaNome,
+                            bimestre: parseInt(bimestre),
+                            avm: avm_val,
+                            avb: avb_val,
+                            rec: rec_val,
+                            observacao: ''
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        notasSalvas++;
+                    } else {
+                        erros++;
+                        const erro = await response.json();
+                        console.error(`Erro ao salvar nota:`, erro);
+                    }
+                }
+                
+                if (notasSalvas > 0) {
+                    alert(`✅ ${notasSalvas} nota(s) salva(s) com sucesso!`);
+                    // Recarregar dados gerais
+                    await carregarDadosNotas();
+                    // Limpar seleção
+                    document.getElementById('bimestreSelecionado').value = '';
+                    document.getElementById('disciplinaSelecionada').value = '';
+                    document.getElementById('containerTabelas').innerHTML = '';
+                    document.getElementById('btnSalvarNotas').style.display = 'none';
+                } else if (erros === 0 && notasSalvas === 0) {
+                    alert('Nenhuma nota foi preenchida');
+                }
+                
+                if (erros > 0) {
+                    console.error(`Erros ao salvar ${erros} nota(s)`);
+                }
+            } catch (error) {
+                console.error('Erro ao salvar notas:', error);
+                alert('Erro ao salvar notas. Verifique a conexão com o servidor.');
+            }
+        }
+
+        // Inicializar
+        verificarAutenticacao();
+    </script>
+</body>
+</html>

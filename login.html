@@ -296,6 +296,85 @@
                 alert('Erro ao conectar com o servidor. Verifique se o servidor está rodando.');
             });
         });
+
+        // Código para alternar entre Email e Matrícula na tela dependendo do usuário selecionado
+    document.getElementById('usuario').addEventListener('change', function() {
+        const tipoUsuario = this.value;
+        const emailContainer = document.getElementById('email-container');
+        const matriculaContainer = document.getElementById('matricula-container');
+        const emailInput = document.getElementById('email');
+        const matriculaInput = document.getElementById('matricula');
+
+        if (tipoUsuario === 'aluno') {
+            emailContainer.style.display = 'none';
+            emailInput.value = '';
+            matriculaContainer.style.display = 'block';
+            matriculaInput.required = true;
+            emailInput.required = false;
+        } else {
+            emailContainer.style.display = 'block';
+            matriculaContainer.style.display = 'none';
+            matriculaInput.value = '';
+            matriculaInput.required = false;
+            emailInput.required = tipoUsuario !== ''; // Requer email se não estiver vazio
+        }
+    });
+
+    // Código para interceptar o envio do formulário e mandar como JSON para a API
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault(); // Impede a página de recarregar com erro
+
+        const tipoUsuario = document.getElementById('usuario').value;
+        const email = document.getElementById('email').value;
+        const matricula = document.getElementById('matricula').value;
+        const senha = document.getElementById('senha').value;
+
+        // Monta o objeto exatamente como seu app.py espera receber
+        const dadosLogin = {
+            tipo_usuario: tipoUsuario,
+            senha: senha
+        };
+
+        if (tipoUsuario === 'aluno') {
+            dadosLogin.matricula = matricula;
+        } else {
+            dadosLogin.email = email;
+        }
+
+        try {
+            // Envia os dados para a sua rota de API do Flask
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dadosLogin)
+            });
+
+            const resultado = await response.json();
+
+            if (response.ok && resultado.access_token) {
+                // Salva o Token JWT no navegador para manter o usuário logado
+                localStorage.setItem('token', resultado.access_token);
+                localStorage.setItem('usuario_nome', resultado.nome);
+                localStorage.setItem('usuario_tipo', resultado.tipo);
+
+                // Redireciona o usuário para a Dashboard correta baseada na sua lógica
+                if (resultado.tipo === 'administrador') {
+                    window.location.href = '/painel-admin.html';
+                } else if (resultado.tipo === 'professor') {
+                    window.location.href = '/diario.html';
+                } else if (resultado.tipo === 'aluno') {
+                    window.location.href = '/aluno-dashboard.html';
+                }
+            } else {
+                alert('Erro: ' + (resultado.erro || 'Credenciais inválidas'));
+            }
+        } catch (error) {
+            console.error('Erro ao conectar ao servidor:', error);
+            alert('Não foi possível conectar ao sistema de login escolar.');
+        }
+    });
     </script>
 </body>
 </html>

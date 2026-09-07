@@ -111,6 +111,16 @@ def servir_foto(filename):
 
 # ===== ROTAS DE AUTENTICAÇÃO (SEM JWT_REQUIRED) =====
 
+@app.route('/login', methods=['GET'])
+def tela_login():
+    """Renderiza a página visual do formulário de login"""
+    from flask import render_template
+    try:
+        return render_template('login.html')
+    except Exception:
+        # Fallback caso o arquivo esteja na raiz ou com outro nome
+        return open('login.html', 'r', encoding='utf-8').read()
+
 @app.route('/api/login', methods=['POST'])
 def login():
     """Login de professor ou aluno - Retorna JWT Token"""

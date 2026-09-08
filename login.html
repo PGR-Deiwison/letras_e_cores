@@ -78,7 +78,7 @@
     </footer>
 
     <script>
-        const API_URL = 'http://localhost:5000/api';
+                const API_URL = window.location.origin + '/api';
 
         // ===== FUNÇÕES DE AUTENTICAÇÃO SEGURAS =====
         
@@ -123,7 +123,9 @@
                     html += `<option value="${turma.id}">${turma.nome} (${turma.ano})</option>`;
                 });
                 
-                turmaSelect.innerHTML = html;
+                if(turmaSelect) {
+                    turmaSelect.innerHTML = html;
+                }
             } catch (error) {
                 console.log('Turmas serão carregadas após autenticação');
             }
@@ -138,8 +140,8 @@
             turmas.forEach(turma => {
                 html += `
                     <div style="margin-bottom: 10px;">
-                        <button type="button" class="btn-login" onclick="selecionarTurmaProfessor(${turma.id}, '${turma.nome} (${turma.ano})', ${professorId}, '${token}')" style="width: 100%;">
-                            ${turma.nome} - ${turma.ano}º Ano
+                        <button type="button" class="btn-login" onclick="selecionarTurmaProfessor(${turma.id}, '${turma.nome}', ${professorId}, '${token}')" style="width: 100%;">
+                            ${turma.nome}
                         </button>
                     </div>
                 `;
@@ -169,14 +171,14 @@
 
         // Carregar turmas quando a página carrega
         document.addEventListener('DOMContentLoaded', function() {
-            // Se já está autenticado, redirecionar
+            // Se já está autenticado, redirecionar de forma segura
             if (estaAutenticado()) {
                 const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
-                if (userData.serieId && userData.tipo === 'aluno') {
+                if (userData.tipo === 'aluno' && userData.serieId) {
                     window.location.href = 'aluno-dashboard.html';
-                } else if (userData.professorId) {
-                    window.location.href = 'diario.html';
-                } else if (userData.administrador === 'sim') {
+                } else if (userData.tipo === 'professor') {
+                    window.location.href = 'diario.html' + (userData.serieId ? '?turma=' + userData.serieId : '');
+                } else if (userData.tipo === 'administrador' || userData.administrador === 'sim') {
                     window.location.href = 'painel-admin.html';
                 }
             }
@@ -206,13 +208,11 @@
             const matricula = document.getElementById('matricula').value.trim();
             const senha = document.getElementById('senha').value.trim();
             
-            // Validar se tipo de usuário foi selecionado
             if (!usuario) {
                 alert('Por favor, selecione o tipo de usuário!');
                 return;
             }
             
-            // Validar dados conforme tipo
             if (usuario === 'aluno') {
                 if (!matricula || !senha) {
                     alert('Por favor, preencha matrícula e senha!');
@@ -225,7 +225,6 @@
                 }
             }
             
-            // Preparar dados para login
             const loginData = {
                 senha: senha,
                 tipo_usuario: usuario
@@ -237,150 +236,73 @@
                 loginData.email = email;
             }
             
-            // Fazer login via API (JWT)
             fetch(`${API_URL}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(loginData)
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw response;
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.sucesso && data.access_token) {
-                    // Salvar token JWT
+                    // Salvar token JWT de forma global
                     armazenarToken(data.access_token);
                     
-                    // Salvar dados do usuário
+                    // Estrutura unificada de dados de sessão
                     const userData = {
-                        token: data.access_token,
-                        tipo: usuario
+                        id: data.id,
+                        nome: data.nome,
+                        tipo: usuario,
+                        token: data.access_token
                     };
                     
                     if (usuario === 'aluno') {
-                        userData.id = data.id;
-                        userData.nome = data.nome;
                         userData.matricula = data.matricula;
                         userData.serieId = data.serie_id;
                         userData.serieName = data.serie_nome;
+                        
+                        localStorage.setItem('user_data', JSON.stringify(userData));
+                        window.location.href = 'aluno-dashboard.html';
+                        
                     } else if (usuario === 'professor') {
                         userData.professorId = data.id;
                         userData.professorNome = data.nome;
                         userData.turmas = data.turmas;
-                    } else if (usuario === 'administrador') {
-                        userData.administrador = 'sim';
-                        userData.id = data.id;
-                        userData.nome = data.nome;
-                    }
-                    
-                    localStorage.setItem('user_data', JSON.stringify(userData));
-                    
-                    // Redirecionar baseado no tipo
-                    if (usuario === 'aluno') {
-                        window.location.href = 'aluno-dashboard.html';
-                    } else if (usuario === 'professor') {
-                        // Se professor tem turmas, mostrar modal de seleção
+                        
+                        localStorage.setItem('user_data', JSON.stringify(userData));
+                        
+                        // Se o professor tem turmas cadastradas, exibe o modal de escolha
                         if (data.turmas && data.turmas.length > 0) {
                             mostrarModalTurmasProfessor(data.nome, data.turmas, data.id, data.access_token);
                         } else {
-                            alert('Você não possui turmas associadas!');
-                            logout();
+                            window.location.href = 'diario.html';
                         }
+                        
                     } else if (usuario === 'administrador') {
+                        userData.administrador = 'sim';
+                        
+                        localStorage.setItem('user_data', JSON.stringify(userData));
                         window.location.href = 'painel-admin.html';
                     }
                 } else {
-                    alert(data.erro || 'Email/Matrícula ou senha inválidos!');
+                    alert('Erro ao realizar login. Verifique os dados informados.');
                 }
             })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao conectar com o servidor. Verifique se o servidor está rodando.');
+            .catch(async error => {
+                console.error('Erro na requisição:', error);
+                try {
+                    const erroJson = await error.json();
+                    alert('Erro: ' + (erroJson.erro || 'Credenciais inválidas.'));
+                } catch(e) {
+                    alert('Não foi possível conectar ao servidor escolar. Verifique sua conexão.');
+                }
             });
         });
 
-        // Código para alternar entre Email e Matrícula na tela dependendo do usuário selecionado
-    document.getElementById('usuario').addEventListener('change', function() {
-        const tipoUsuario = this.value;
-        const emailContainer = document.getElementById('email-container');
-        const matriculaContainer = document.getElementById('matricula-container');
-        const emailInput = document.getElementById('email');
-        const matriculaInput = document.getElementById('matricula');
-
-        if (tipoUsuario === 'aluno') {
-            emailContainer.style.display = 'none';
-            emailInput.value = '';
-            matriculaContainer.style.display = 'block';
-            matriculaInput.required = true;
-            emailInput.required = false;
-        } else {
-            emailContainer.style.display = 'block';
-            matriculaContainer.style.display = 'none';
-            matriculaInput.value = '';
-            matriculaInput.required = false;
-            emailInput.required = tipoUsuario !== ''; // Requer email se não estiver vazio
-        }
-    });
-
-    // Código para interceptar o envio do formulário e mandar como JSON para a API
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
-        e.preventDefault(); // Impede a página de recarregar com erro
-
-        const tipoUsuario = document.getElementById('usuario').value;
-        const email = document.getElementById('email').value;
-        const matricula = document.getElementById('matricula').value;
-        const senha = document.getElementById('senha').value;
-
-        // Monta o objeto exatamente como seu app.py espera receber
-        const dadosLogin = {
-            tipo_usuario: tipoUsuario,
-            senha: senha
-        };
-
-        if (tipoUsuario === 'aluno') {
-            dadosLogin.matricula = matricula;
-        } else {
-            dadosLogin.email = email;
-        }
-
-        try {
-            // Envia os dados para a sua rota de API do Flask
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(dadosLogin)
-            });
-
-            const resultado = await response.json();
-
-            if (response.ok && resultado.access_token) {
-                // CORREÇÃO: Salva o Token com o nome exato que o painel procura
-                localStorage.setItem('access_token', resultado.access_token);
-                
-                // CORREÇÃO: Monta a caixinha 'user_data' em formato JSON que o painel exige
-                const dadosUsuario = {
-                    id: resultado.id,
-                    nome: resultado.nome,
-                    tipo: resultado.tipo // 'administrador', 'professor' ou 'aluno'
-                };
-                localStorage.setItem('user_data', JSON.stringify(dadosUsuario));
-
-                // Redireciona para a Dashboard correta baseada na sua lógica
-                if (resultado.tipo === 'administrador') {
-                    window.location.href = '/painel-admin.html';
-                } else if (resultado.tipo === 'professor') {
-                    window.location.href = '/diario.html';
-                } else if (resultado.tipo === 'aluno') {
-                    window.location.href = '/aluno-dashboard.html';
-                }
-            } else {
-                alert('Erro: ' + (resultado.erro || 'Credenciais inválidas'));
-            }
-        } catch (error) {
-            console.error('Erro ao conectar ao servidor:', error);
-            alert('Não foi possível conectar ao sistema de login escolar.');
-        }
-    });
     </script>
 </body>
 </html>

@@ -1,10 +1,40 @@
 """
 Script para expandir a estrutura da tabela de notas
-Adiciona campos para nota mensal, bimestral e recuperação
+DEPRECATED - NÃO USE ESTE SCRIPT!
+
+Este script está obsoleto. A migração correta das colunas de notas (avm, avb, rec, mb)
+é feita automaticamente através de aplicar_migracoes() em banco_dados.py
+
+As colunas adicionadas por este script estão INCORRETAS:
+  - INCORRETO: nota_mensal_1, nota_mensal_2, nota_mensal_3, nota_bimestral, nota_recuperacao
+  - CORRETO: avm, avb, rec, mb
+
+NÃO EXECUTE ESTE SCRIPT!
 """
 
-import sqlite3
 import sys
+
+print("\n" + "="*80)
+print("❌ ERRO: SCRIPT DEPRECATED")
+print("="*80)
+print("\nEste script não pode ser executado. A migração de notas já é feita")
+print("automaticamente pelo sistema na inicialização do banco de dados.")
+print("\nPara adicionar as colunas de notas corretamente, simplesmente:")
+print("  1. Abra o python interativo")
+print("  2. Execute: from banco_dados import BancoDados")
+print("  3. Execute: db = BancoDados('escola.db')")
+print("\nO sistema aplicará as migrações automaticamente.")
+print("="*80 + "\n")
+
+sys.exit(1)
+
+# CÓDIGO ORIGINAL (NÃO EXECUTARÁ)
+# ============================================
+
+"""
+ORIGINAL SCRIPT (NÃO EXECUTÁVEL):
+
+import sqlite3
 
 db_file = 'escola.db'
 
@@ -48,6 +78,7 @@ try:
     print("\n" + "="*80)
     print("✅ ESTRUTURA ATUALIZADA COM SUCESSO!")
     print("="*80 + "\n")
+"""
     print("Estrutura das notas agora suporta:")
     print("  • nota_mensal_1, nota_mensal_2, nota_mensal_3 (avaliações mensais)")
     print("  • nota_bimestral (nota final do bimestre)")

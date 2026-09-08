@@ -150,7 +150,7 @@ def login():
             # Login de administrador
             if not email:
                 return jsonify({'erro': 'Email é obrigatório para administrador'}), 400
-            if email == 'admin@escola.com' and senha == 'Admin2026':
+            if email == config.ADMIN_EMAIL and senha == config.ADMIN_PASSWORD:
                 access_token = create_access_token(
                     identity='0',
                     additional_claims={'tipo': 'administrador', 'id': 0, 'nome': 'Administrador', 'email': email}
@@ -582,8 +582,9 @@ def deletar_disciplina(disciplina_id):
 # ===== ROTAS DE SÉRIES =====
 
 @app.route('/api/series', methods=['GET'])
+@jwt_required()
 def listar_series():
-    """Lista todas as séries (público - sem autenticação)"""
+    """Lista todas as séries (requer autenticação)"""
     try:
         series = db.listar_series()
         return jsonify([dict(s) for s in series]), 200
@@ -1099,11 +1100,9 @@ def obter_atividades_aluno():
         serie_id = aluno[3]  # serie_id está na posição 3
         
         # Buscar atividades para a série do aluno
-        # Por enquanto, retorna lista vazia pois não temos tabela de atividades
-        # TODO: Criar tabela de atividades e implementar
-        atividades = []
+        atividades = db.obter_atividades_turma(serie_id)
         
-        return jsonify(atividades), 200
+        return jsonify([dict(a) for a in atividades]), 200
     except Exception as e:
         print(f'Erro ao obter atividades: {str(e)}')
         return jsonify({'erro': 'Erro ao obter atividades'}), 500
@@ -1315,6 +1314,32 @@ def deletar_atividade(atividade_id):
     except Exception as e:
         print(f'Erro ao excluir atividade: {str(e)}')
         return jsonify({'erro': 'Erro ao excluir atividade'}), 500
+
+@app.route('/api/atividades/<int:atividade_id>', methods=['PUT'])
+@jwt_required()
+def atualizar_atividade(atividade_id):
+    """Atualiza uma atividade existente (professor)"""
+    try:
+        identity = get_jwt_identity()
+        professor_id = int(identity) if identity != '0' else None
+        
+        if not professor_id or professor_id == 0:
+            return jsonify({'erro': 'Acesso não autorizado'}), 401
+        
+        data = request.get_json(silent=True) or {}
+        titulo = data.get('titulo')
+        descricao = data.get('descricao')
+        data_criacao = data.get('data_criacao')
+        data_entrega = data.get('data_entrega')
+        status = data.get('status')
+        
+        if db.atualizar_atividade(atividade_id, titulo, descricao, data_criacao, data_entrega, status):
+            return jsonify({'sucesso': True, 'mensagem': 'Atividade atualizada com sucesso'}), 200
+        else:
+            return jsonify({'erro': 'Erro ao atualizar atividade'}), 500
+    except Exception as e:
+        print(f'Erro ao atualizar atividade: {str(e)}')
+        return jsonify({'erro': 'Erro ao atualizar atividade'}), 500
 
 if __name__ == '__main__':
     print("Iniciando servidor Flask com JWT e Bcrypt...")

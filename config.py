@@ -37,6 +37,10 @@ SESSION_COOKIE_SECURE = os.getenv('FLASK_ENV', 'development') == 'production'  #
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
 
+# ===== CONFIGURAÇÕES DE ADMINISTRADOR =====
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'admin@escola.com')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'Admin2026')
+
 # ===== CONFIGURAÇÕES DE LOGGING =====
 LOG_LEVEL = 'INFO'
 LOG_FORMAT = '[%(asctime)s] %(levelname)s: %(message)s'

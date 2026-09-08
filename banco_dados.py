@@ -244,6 +244,46 @@ class BancoDados:
             conn.commit()
             conn.close()
             print("Banco de dados criado com sucesso!")
+        
+        # Executar migrações de segurança
+        self.aplicar_migracoes()
+    
+    def aplicar_migracoes(self):
+        """Aplica migrações seguras (adiciona colunas faltantes sem perder dados)"""
+        conn = self.conexao()
+        cursor = conn.cursor()
+        
+        try:
+            # Verificar e adicionar colunas na tabela notas se não existirem
+            cursor.execute("PRAGMA table_info(notas)")
+            colunas_existentes = [row[1] for row in cursor.fetchall()]
+            
+            # Adicionar coluna 'avm' (Avaliação Mensal) se não existir
+            if 'avm' not in colunas_existentes:
+                cursor.execute("ALTER TABLE notas ADD COLUMN avm REAL DEFAULT NULL")
+                print("✓ Coluna 'avm' adicionada à tabela notas")
+            
+            # Adicionar coluna 'avb' (Avaliação Bimestral) se não existir
+            if 'avb' not in colunas_existentes:
+                cursor.execute("ALTER TABLE notas ADD COLUMN avb REAL DEFAULT NULL")
+                print("✓ Coluna 'avb' adicionada à tabela notas")
+            
+            # Adicionar coluna 'rec' (Recuperação) se não existir
+            if 'rec' not in colunas_existentes:
+                cursor.execute("ALTER TABLE notas ADD COLUMN rec REAL DEFAULT NULL")
+                print("✓ Coluna 'rec' adicionada à tabela notas")
+            
+            # Adicionar coluna 'mb' (Média Bimestral) se não existir
+            if 'mb' not in colunas_existentes:
+                cursor.execute("ALTER TABLE notas ADD COLUMN mb REAL DEFAULT NULL")
+                print("✓ Coluna 'mb' adicionada à tabela notas")
+            
+            conn.commit()
+        except Exception as e:
+            print(f"Erro ao aplicar migrações: {e}")
+            conn.rollback()
+        finally:
+            conn.close()
     
     # ===== OPERAÇÕES COM PROFESSORES =====
     def adicionar_professor(self, nome, email, senha, cpf='', data_nascimento='', celular='', endereco='', foto=''):
@@ -272,6 +312,14 @@ class BancoDados:
         cursor = conn.cursor()
         
         try:
+            # Verificar se email já existe para outro professor (se email for atualizado)
+            if email not in (None, ''):
+                cursor.execute("SELECT id FROM professores WHERE email = ? AND id != ?", (email, professor_id))
+                if cursor.fetchone():
+                    print(f"Erro: Email {email} já está cadastrado para outro professor")
+                    conn.close()
+                    return False
+            
             # Construir query dinamicamente com os campos fornecidos
             campos = []
             valores = []
@@ -983,6 +1031,49 @@ class BancoDados:
             return True
         except Exception as e:
             print(f"Erro ao excluir atividade: {e}")
+            return False
+        finally:
+            conn.close()
+    
+    def atualizar_atividade(self, atividade_id, titulo=None, descricao=None, data_criacao=None, data_entrega=None, status=None):
+        """Atualiza dados de uma atividade"""
+        conn = self.conexao()
+        cursor = conn.cursor()
+        
+        try:
+            # Construir query dinamicamente com os campos fornecidos
+            campos = []
+            valores = []
+            
+            if titulo not in (None, ''):
+                campos.append('titulo = ?')
+                valores.append(titulo)
+            if descricao not in (None, ''):
+                campos.append('descricao = ?')
+                valores.append(descricao)
+            if data_criacao not in (None, ''):
+                campos.append('data_criacao = ?')
+                valores.append(data_criacao)
+            if data_entrega not in (None, ''):
+                campos.append('data_entrega = ?')
+                valores.append(data_entrega)
+            if status not in (None, ''):
+                campos.append('status = ?')
+                valores.append(status)
+            
+            if not campos:
+                return False
+            
+            valores.append(atividade_id)
+            
+            query = f"UPDATE atividades SET {', '.join(campos)} WHERE id = ?"
+            cursor.execute(query, valores)
+            conn.commit()
+            
+            return cursor.rowcount > 0
+        except Exception as e:
+            conn.rollback()
+            print(f"Erro ao atualizar atividade: {e}")
             return False
         finally:
             conn.close()

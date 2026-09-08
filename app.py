@@ -7,10 +7,11 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from banco_dados import BancoDados
-from config import SECRET_KEY, JWT_SECRET_KEY, CORS_ORIGINS, JWT_ACCESS_TOKEN_EXPIRES
+from config import SECRET_KEY, JWT_SECRET_KEY, CORS_ORIGINS, JWT_ACCESS_TOKEN_EXPIRES, ADMIN_EMAIL, ADMIN_PASSWORD
 from datetime import datetime, timedelta
 import json
 import os
+import config
 
 # ===== FERIADOS BRASILEIROS 2026 =====
 FERIADOS_2026 = {

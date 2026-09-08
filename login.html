@@ -354,12 +354,18 @@
             const resultado = await response.json();
 
             if (response.ok && resultado.access_token) {
-                // Salva o Token JWT no navegador para manter o usuário logado
-                localStorage.setItem('token', resultado.access_token);
-                localStorage.setItem('usuario_nome', resultado.nome);
-                localStorage.setItem('usuario_tipo', resultado.tipo);
+                // CORREÇÃO: Salva o Token com o nome exato que o painel procura
+                localStorage.setItem('access_token', resultado.access_token);
+                
+                // CORREÇÃO: Monta a caixinha 'user_data' em formato JSON que o painel exige
+                const dadosUsuario = {
+                    id: resultado.id,
+                    nome: resultado.nome,
+                    tipo: resultado.tipo // 'administrador', 'professor' ou 'aluno'
+                };
+                localStorage.setItem('user_data', JSON.stringify(dadosUsuario));
 
-                // Redireciona o usuário para a Dashboard correta baseada na sua lógica
+                // Redireciona para a Dashboard correta baseada na sua lógica
                 if (resultado.tipo === 'administrador') {
                     window.location.href = '/painel-admin.html';
                 } else if (resultado.tipo === 'professor') {

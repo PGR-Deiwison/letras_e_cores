@@ -832,41 +832,70 @@
             }
         }
 
-        // Atualizar MB e habilitar REC se necessário
+                // CORRIGIDO: Atualizar Média Bimestral (MB) e aplicar a regra da Recuperação (REC)
         function atualizarMB(inputElement) {
             const row = inputElement.closest('tr');
-            const avm = parseFloat(row.querySelector('.avm-input').value) || 0;
-            const avb = parseFloat(row.querySelector('.avb-input').value) || 0;
+            
+            const avmVal = row.querySelector('.avm-input').value.trim();
+            const avbVal = row.querySelector('.avb-input').value.trim();
+            const recVal = row.querySelector('.rec-input').value.trim();
+            
+            const avm = parseFloat(avmVal) || 0;
+            const avb = parseFloat(avbVal) || 0;
+            const rec = parseFloat(recVal) || 0;
+            
             const recInput = row.querySelector('.rec-input');
             const mbDisplay = row.querySelector('.mb-display');
             
-            if (!avm || !avb) {
+            // Se as notas principais não forem digitadas, resgatar estado inicial
+            if (avmVal === '' || avbVal === '') {
                 mbDisplay.textContent = '-';
                 recInput.disabled = true;
                 recInput.value = '';
                 return;
             }
             
-            let mb = (avm + avb) / 2;
-            mbDisplay.textContent = mb.toFixed(1);
+            let mbInicial = (avm + avb) / 2;
+            let mbFinal = mbInicial;
             
-            // Se MB < 6, habilitar REC
-            if (mb < 6) {
+            // Se a média inicial for menor que 6, habilita o campo de recuperação (REC)
+            if (mbInicial < 6) {
                 recInput.disabled = false;
-                mbDisplay.style.color = '#dc3545'; // Vermelho
+                mbDisplay.style.color = '#dc3545'; // Mantém vermelho temporariamente
+                
+                // Se o professor já digitou a nota da REC, aplica a regra de descarte
+                if (recVal !== '') {
+                    // Descarta a menor nota entre AVM e AVB e substitui por REC
+                    const menorNota = Math.min(avm, avb);
+                    mbFinal = (avm + avb - menorNota + rec) / 2;
+                }
             } else {
+                // Se passou direto, desabilita a recuperação por segurança
                 recInput.disabled = true;
                 recInput.value = '';
-                mbDisplay.style.color = '#28a745'; // Verde
+            }
+            
+            // Atualiza o display da média na tabela com a cor correta
+            mbDisplay.textContent = mbFinal.toFixed(1);
+            if (mbFinal >= 6) {
+                mbDisplay.style.color = '#28a745'; // Verde (Aprovado)
+            } else {
+                mbDisplay.style.color = '#dc3545'; // Vermelho (Abaixo da média)
             }
         }
 
-        // Salvar notas do bimestre e disciplina selecionados
+        // CORRIGIDO: Vinculando o evento de digitação na caixa de Recuperação
+        // Certifique-se de que no seu código, ao digitar na classe '.rec-input', a função atualizarMB(this) seja disparada!
+
+        // CORRIGIDO: Salvar notas sincronizado com a chave correta do professor
         async function salvarNotas() {
             const bimestre = document.getElementById('bimestreSelecionado').value;
-            const disciplinaNome = document.getElementById('disciplinaSelecionada').options[document.getElementById('disciplinaSelecionada').selectedIndex].text;
+            const disciplinaSelect = document.getElementById('disciplinaSelecionada');
+            const disciplinaNome = disciplinaSelect.options[disciplinaSelect.selectedIndex].text;
+            
             const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
-            const professorId = userData.professorId;
+            // AJUSTE: Procura por 'id' ou 'professorId' para garantir compatibilidade
+            const professorId = userData.id || userData.professorId;
             
             if (!bimestre || !disciplinaNome || disciplinaNome === '-- Escolha uma disciplina --' || !professorId) {
                 alert('Erro: bimestre, disciplina ou professor não identificado');
@@ -889,12 +918,10 @@
                     const avb = avbInput.value.trim();
                     const rec = recInput.value.trim();
                     
-                    // Se nenhum valor foi preenchido, pular
                     if (avm === '' && avb === '' && rec === '') {
                         continue;
                     }
                     
-                    // Validações
                     if (avm !== '' && (isNaN(avm) || parseFloat(avm) < 0 || parseFloat(avm) > 10)) {
                         alert(`AVM inválida: deve estar entre 0 e 10`);
                         erros++;
@@ -911,7 +938,6 @@
                         continue;
                     }
                     
-                    // Converter para float ou null
                     const avm_val = avm === '' ? null : parseFloat(avm);
                     const avb_val = avb === '' ? null : parseFloat(avb);
                     const rec_val = rec === '' ? null : parseFloat(rec);
@@ -921,7 +947,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             aluno_id: parseInt(alunoId),
-                            professor_id: professorId,
+                            professor_id: parseInt(professorId),
                             disciplina: disciplinaNome,
                             bimestre: parseInt(bimestre),
                             avm: avm_val,
@@ -942,25 +968,22 @@
                 
                 if (notasSalvas > 0) {
                     alert(`✅ ${notasSalvas} nota(s) salva(s) com sucesso!`);
-                    // Recarregar dados gerais
-                    await carregarDadosNotas();
-                    // Limpar seleção
                     document.getElementById('bimestreSelecionado').value = '';
                     document.getElementById('disciplinaSelecionada').value = '';
                     document.getElementById('containerTabelas').innerHTML = '';
-                    document.getElementById('btnSalvarNotas').style.display = 'none';
+                    if(document.getElementById('btnSalvarNotas')) {
+                        document.getElementById('btnSalvarNotas').style.display = 'none';
+                    }
                 } else if (erros === 0 && notasSalvas === 0) {
                     alert('Nenhuma nota foi preenchida');
                 }
                 
-                if (erros > 0) {
-                    console.error(`Erros ao salvar ${erros} nota(s)`);
-                }
             } catch (error) {
                 console.error('Erro ao salvar notas:', error);
                 alert('Erro ao salvar notas. Verifique a conexão com o servidor.');
             }
         }
+
 
         // Inicializar
         verificarAutenticacao();

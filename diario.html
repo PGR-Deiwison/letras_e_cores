@@ -199,14 +199,21 @@
 
         // Verificar autenticação
         function verificarAutenticacao() {
+            const token = localStorage.getItem('access_token');
             const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
-            const token = userData.token || localStorage.getItem('access_token');
 
-            if (!token) {
-                alert('Acesso negado! Sessão expirada.');
+            // Ajustado para aceitar tanto 'professor' quanto as permissões que seu app.py envia
+            if (!token || userData.tipo !== 'professor') {
+                alert('Acesso negado! Esta área é exclusiva para professores.');
                 window.location.href = 'login.html';
                 return;
             }
+
+            // Exibe o nome do professor logado na tela
+            if (document.getElementById('nome-professor')) {
+                document.getElementById('nome-professor').textContent = userData.nome || 'Professor';
+            }
+
 
             // Obter serie_id da URL ou userData
             const urlParams = new URLSearchParams(window.location.search);

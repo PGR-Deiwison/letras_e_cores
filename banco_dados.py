@@ -3,23 +3,20 @@ Banco de dados para sistema de gestão escolar
 Gerenciamento com SQLite
 """
 
-import sqlite3
-import bcrypt
-from datetime import datetime
 import os
-import random
-import string
+import sqlite3
+import psycopg2
 
-class BancoDados:
-    def __init__(self, arquivo_db='escola.db'):
-        self.arquivo_db = arquivo_db
-        self.criar_banco_dados()
+def obter_conexao():
+    # Tenta pegar a URL do Supabase configurada no Render
+    database_url = os.environ.get("DATABASE_URL")
     
-    def conexao(self):
-        """Cria e retorna uma conexão com o banco de dados"""
-        conn = sqlite3.connect(self.arquivo_db, timeout=10.0)
-        conn.row_factory = sqlite3.Row
-        return conn
+    if database_url:
+        # Se existir, conecta no Supabase (PostgreSQL)
+        return psycopg2.connect(database_url)
+    else:
+        # Se não existir (rodando local no PC), usa o SQLite padrão
+        return sqlite3.connect("banco.db")
     
     # ===== FUNÇÕES DE SEGURANÇA (BCRYPT) =====
     
